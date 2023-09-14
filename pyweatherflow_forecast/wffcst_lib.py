@@ -186,30 +186,38 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
 
 
 class WeatherFlow:
-    """Class to hold the Forecast data."""
+    """
+    Class that uses the Better Forecast API from WeatherFlow to retreive
+    forecast data for daily and hourly.
+    """
 
     def __init__(
-        self, station_id: int, api_token: str, session: aiohttp.ClientSession = None
+        self,
+        station_id: int,
+        api_token: str,
+        session: aiohttp.ClientSession = None,
+        api: WeatherFlowAPIBase = WeatherFlowAPI(),
     ) -> None:
         self._station_id = station_id
         self._api_token = api_token
+        self._api = api
 
         if session:
-            self._session = session
+            self._api.session = session
 
 
     def get_forecast(self) -> List[WeatherFlowForecast]:
         """
         Returns a list of forecasts. The first in list are the current one
         """
-        json_data = self._api.get_forecast_api(self._longitude, self._latitude)
+        json_data = self._api.get_forecast_api(self._station_id, self._api_token)
         return _get_forecast(json_data)
 
     def get_forecast_hour(self) -> List[WeatherFlowForecast]:
         """
         Returns a list of forecasts by hour. The first in list are the current one
         """
-        json_data = self._api.get_forecast_api(self._longitude, self._latitude)
+        json_data = self._api.get_forecast_api(self._station_id, self._api_token)
         return _get_forecast_hour(json_data)
 
     async def async_get_forecast(self) -> List[WeatherFlowForecast]:
@@ -217,7 +225,7 @@ class WeatherFlow:
         Returns a list of forecasts. The first in list are the current one
         """
         json_data = await self._api.async_get_forecast_api(
-            self._longitude, self._latitude
+            self._station_id, self._api_token
         )
         return _get_forecast(json_data)
 
@@ -226,7 +234,7 @@ class WeatherFlow:
         Returns a list of forecasts by hour. The first in list are the current one
         """
         json_data = await self._api.async_get_forecast_api(
-            self._longitude, self._latitude
+            self._station_id, self._api_token
         )
         return _get_forecast_hour(json_data)
 
@@ -283,7 +291,7 @@ def _get_forecast(api_result: dict) -> List[WeatherFlowForecast]:
 
 
 def _get_forecast_hour(api_result: dict) -> List[WeatherFlowForecast]:
-    """Converts results fråm API to SmhiForeCast list"""
+    """Converts results from API to WeatherFlowForecast list"""
     forecasts = []
 
     # Need the ordered dict to get
