@@ -6,17 +6,21 @@ from __future__ import annotations
 
 import abc
 import copy
+import datetime
 import json
+import logging
 
 from collections import OrderedDict
-from datetime import datetime
 from typing import List, Any, Dict
 from urllib.request import urlopen
 
 import aiohttp
 
-from .const import WEATHERFLOW_FORECAST_URL
+from .const import ICON_LIST, WEATHERFLOW_FORECAST_URL
 
+_LOGGER = logging.getLogger(__name__)
+# Timezone
+UTC = datetime.timezone.utc
 
 class WeatherFlowForecastException(Exception):
     """Exception thrown if failing to access API"""
@@ -26,9 +30,11 @@ class WeatherFlowForecast:
         # pylint: disable=R0913, R0902, R0914
     def __init__(
         self,
+        valid_time: datetime,
         temperature: float,
         temp_low: float,
         condition: str,
+        icon: str,
         humidity: int,
         apparent_temperature: float,
         precipitation: float,
@@ -38,12 +44,13 @@ class WeatherFlowForecast:
         wind_gust_speed: int,
         wind_speed: int,
         uv_index: float,
-        valid_time: datetime,
     ) -> None:
         """Constructor"""
+        self._valid_time = valid_time
         self._temperature = temperature
         self._temp_low = temp_low
         self._condition = condition
+        self._icon = icon
         self._humidity = humidity
         self._apparent_temperature = apparent_temperature
         self._precipitation = precipitation
@@ -53,7 +60,6 @@ class WeatherFlowForecast:
         self._wind_gust_speed = wind_gust_speed
         self._wind_speed = wind_speed
         self._uv_index = uv_index
-        self._valid_time = valid_time
 
     @property
     def temperature(self) -> float:
@@ -67,8 +73,13 @@ class WeatherFlowForecast:
 
     @property
     def condition(self) -> str:
-        """Weather condition symbol."""
+        """Weather condition text."""
         return self._condition
+
+    @property
+    def icon(self) -> str:
+        """Weather condition symbol."""
+        return self._icon
 
     @property
     def humidity(self) -> int:
@@ -244,48 +255,30 @@ def _get_forecast(api_result: dict) -> List[WeatherFlowForecast]:
     """Converts results from API to WeatherFlowForecast list"""
     forecasts = []
 
-    # Need the ordered dict to get
-    # the days in order in next stage
-    forecasts_ordered = OrderedDict()
+    for item in api_result["forecast"]["daily"]:
+        valid_time = datetime.datetime.utcfromtimestamp(item["day_start_local"]).replace(tzinfo=UTC)
+        condition = item["conditions"]
+        icon = ICON_LIST.get(item["icon"], "exceptional")
+        temperature = item["air_temp_high"]
+        temp_low = item["air_temp_low"]
 
-    forecasts_ordered = _get_all_forecast_from_api(api_result)
-
-    # Used to calc the daycount
-    day_nr = 1
-
-    for day in forecasts_ordered:
-        forecasts_day = forecasts_ordered[day]
-
-        if day_nr == 1:
-            # Add the most recent forecast
-            forecasts.append(copy.deepcopy(forecasts_day[0]))
-
-        total_precipitation = float(0.0)
-        forecast_temp_max = -100.0
-        forecast_temp_min = 100.0
-        forecast = None
-        for forcast_day in forecasts_day:
-            temperature = forcast_day.temperature
-            if forecast_temp_min > temperature:
-                forecast_temp_min = temperature
-            if forecast_temp_max < temperature:
-                forecast_temp_max = temperature
-
-            if forcast_day.valid_time.hour == 12:
-                forecast = copy.deepcopy(forcast_day)
-
-            total_precipitation = total_precipitation + forcast_day._total_precipitation
-
-        if forecast is None:
-            # We passed 12 noon, set to current
-            forecast = forecasts_day[0]
-
-        forecast._temperature_max = forecast_temp_max
-        forecast._temperature_min = forecast_temp_min
-        forecast._total_precipitation = total_precipitation
-        forecast._mean_precipitation = total_precipitation / 24
+        forecast = WeatherFlowForecast(
+            valid_time,
+            temperature,
+            temp_low,
+            condition,
+            icon,
+            humidity=0,
+            apparent_temperature=0,
+            precipitation=0,
+            precipitation_probability=0,
+            pressure=0,
+            wind_bearing=0,
+            wind_gust_speed=0,
+            wind_speed=0,
+            uv_index=0,
+        )
         forecasts.append(forecast)
-        day_nr = day_nr + 1
 
     return forecasts
 
@@ -311,9 +304,101 @@ def _get_forecast_hour(api_result: dict) -> List[WeatherFlowForecast]:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-
-
 def _get_all_forecast_from_api(api_result: dict) -> OrderedDict:
+    """Converts results from API to WeatherFlowForecast list"""
+
+    # Total time in hours since last forecast
+    total_hours_last_forecast = 1.0
+
+    # Last forecast time
+    last_time = None
+
+    # Timezone
+    UTC = datetime.timezone.utc
+
+    # Need the ordered dict to get
+    # the days in order in next stage
+    forecasts_ordered = OrderedDict()
+
+    for forecast in api_result["forecast"]["daily"]:
+        valid_time = datetime.datetime.utcfromtimestamp(forecast["day_start_local"]).replace(tzinfo=UTC)
+        condition = forecast["conditions"]
+        icon = forecast["icon"]
+        temperature = forecast["air_temp_high"]
+        temp_low = forecast["air_temp_low"]
+
+    # Get the parameters
+    # for forecast in api_result["timeSeries"]:
+    #     valid_time = datetime.strptime(forecast["validTime"], "%Y-%m-%dT%H:%M:%SZ")
+    #     for param in forecast["parameters"]:
+    #         if param["name"] == "t":
+    #             temperature = float(param["values"][0])  # Celcisus
+    #         elif param["name"] == "r":
+    #             humidity = int(param["values"][0])  # Percent
+    #         elif param["name"] == "msl":
+    #             pressure = int(param["values"][0])  # hPa
+    #         elif param["name"] == "tstm":
+    #             thunder = int(param["values"][0])  # Percent
+    #         elif param["name"] == "tcc_mean":
+    #             octa = int(param["values"][0])  # Cloudiness in octas
+    #             if 0 <= octa <= 8:  # Between 0 -> 8
+    #                 cloudiness = round(100 * octa / 8)  # Convert octas to percent
+    #             else:
+    #                 cloudiness = 100  # If not determined use 100%
+    #         elif param["name"] == "Wsymb2":
+    #             symbol = int(param["values"][0])  # category
+    #         elif param["name"] == "pcat":
+    #             precipitation = int(param["values"][0])  # percipitation
+    #         elif param["name"] == "pmean":
+    #             mean_precipitation = float(param["values"][0])  # mean_percipitation
+    #         elif param["name"] == "ws":
+    #             wind_speed = float(param["values"][0])  # wind speed
+    #         elif param["name"] == "wd":
+    #             wind_direction = int(param["values"][0])  # wind direction
+    #         elif param["name"] == "vis":
+    #             horizontal_visibility = float(param["values"][0])  # Visibility
+    #         elif param["name"] == "gust":
+    #             wind_gust = float(param["values"][0])  # wind gust speed
+
+    #     rounded_temp = int(round(temperature))
+
+        if last_time is not None:
+            total_hours_last_forecast = (valid_time - last_time).seconds / 60 / 60
+
+        # Total precipitation, have to calculate with the nr of
+        # hours since last forecast to get correct total value
+        # total_precipitation = round(mean_precipitation * total_hours_last_forecast, 2)
+
+        forecast = WeatherFlowForecast(
+            valid_time,
+            temperature,
+            temp_low,
+            condition,
+            icon,
+            humidity=0,
+            apparent_temperature=0,
+            precipitation=0,
+            precipitation_probability=0,
+            pressure=0,
+            wind_bearing=0,
+            wind_gust_speed=0,
+            wind_speed=0,
+            uv_index=0,
+        )
+
+        if valid_time.day not in forecasts_ordered:
+            # add a new list
+            forecasts_ordered[valid_time.day] = []
+
+        forecasts_ordered[valid_time.day].append(forecast)
+
+        last_time = valid_time
+
+    return forecasts_ordered
+
+
+# pylint: disable=R0914, R0912, W0212, R0915
+def _get_all_forecast_from_api_org(api_result: dict) -> OrderedDict:
     """Converts results from API to WeatherFlowForecast list"""
     # Total time in hours since last forecast
     total_hours_last_forecast = 1.0

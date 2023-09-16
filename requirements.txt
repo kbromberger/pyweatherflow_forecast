@@ -8,5 +8,6 @@ pylint
 pytest
 pytest-asyncio
 pytest-cov
+python-dotenv
 requests
 requests-toolbelt
