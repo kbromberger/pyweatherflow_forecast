@@ -1,6 +1,8 @@
 """System Wide constants for WeatherFlow Forecast Wrapper."""
 from __future__ import annotations
 
+CACHE_MINUTES = 30
+
 WEATHERFLOW_BASE_URL = "https://swd.weatherflow.com/swd/rest"
 WEATHERFLOW_FORECAST_URL = f"{WEATHERFLOW_BASE_URL}/better_forecast?station_id="
 

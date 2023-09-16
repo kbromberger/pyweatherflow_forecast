@@ -26,10 +26,18 @@ api_token = os.getenv("API_TOKEN")
 
 weatherflow = WeatherFlow(station_id, api_token)
 
-data: WeatherFlowForecastDaily = weatherflow.get_forecast()
-for item in data:
-    print(item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability)
+data_time = 1694878753
+data_time_obj = datetime.datetime.fromtimestamp(data_time)
+now = datetime.datetime.now()
 
-hourly: WeatherFlowForecastHourly = weatherflow.get_forecast_hour()
-for item in hourly:
-    print(item.temperature, item.apparent_temperature, item.icon, item.condition, item.precipitation, item.precipitation_probability)
+delta = now - data_time_obj
+age_minutes = delta.seconds / 60
+print(age_minutes)
+
+# data: WeatherFlowForecastDaily = weatherflow.get_forecast()
+# for item in data:
+#     print(item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability)
+
+# hourly: WeatherFlowForecastHourly = weatherflow.get_forecast_hour()
+# for item in hourly:
+#     print(item.temperature, item.apparent_temperature, item.icon, item.condition, item.precipitation, item.precipitation_probability)

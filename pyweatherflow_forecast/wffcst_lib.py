@@ -16,7 +16,7 @@ from urllib.request import urlopen
 
 import aiohttp
 
-from .const import ICON_LIST, WEATHERFLOW_FORECAST_URL
+from .const import CACHE_MINUTES, ICON_LIST, WEATHERFLOW_FORECAST_URL
 from .data import WeatherFlowForecastDaily, WeatherFlowForecastHourly
 
 _LOGGER = logging.getLogger(__name__)
@@ -117,15 +117,20 @@ class WeatherFlow:
         """
         Returns a list of forecasts. The first in list are the current one
         """
-        if self._json_data is None or not validate_data(self._json_data):
+        if self._json_data is None:
             self._json_data = self._api.get_forecast_api(self._station_id, self._api_token)
+        elif not validate_data(self._json_data):
+            self._json_data = self._api.get_forecast_api(self._station_id, self._api_token)
+
         return _get_forecast(self._json_data)
 
     def get_forecast_hour(self) -> List[WeatherFlowForecastHourly]:
         """
         Returns a list of forecasts by hour. The first in list are the current one
         """
-        if self._json_data is None or not validate_data(self._json_data):
+        if self._json_data is None:
+            self._json_data = self._api.get_forecast_api(self._station_id, self._api_token)
+        elif not validate_data(self._json_data):
             self._json_data = self._api.get_forecast_api(self._station_id, self._api_token)
         return _get_forecast_hour(self._json_data)
 
@@ -133,18 +138,28 @@ class WeatherFlow:
         """
         Returns a list of forecasts. The first in list are the current one
         """
-        json_data = await self._api.async_get_forecast_api(
-            self._station_id, self._api_token
-        )
+        if self._json_data is None and not validate_data(self._json_data):
+            json_data = await self._api.async_get_forecast_api(
+                self._station_id, self._api_token
+            )
+        elif not validate_data(self._json_data):
+            json_data = await self._api.async_get_forecast_api(
+                self._station_id, self._api_token
+            )
         return _get_forecast(json_data)
 
     async def async_get_forecast_hour(self) -> List[WeatherFlowForecastHourly]:
         """
         Returns a list of forecasts by hour. The first in list are the current one
         """
-        json_data = await self._api.async_get_forecast_api(
-            self._station_id, self._api_token
-        )
+        if self._json_data is None and not validate_data(self._json_data):
+            json_data = await self._api.async_get_forecast_api(
+                self._station_id, self._api_token
+            )
+        elif not validate_data(self._json_data):
+            json_data = await self._api.async_get_forecast_api(
+                self._station_id, self._api_token
+            )
         return _get_forecast_hour(json_data)
 
 def validate_data(json_data) -> bool:
@@ -152,9 +167,11 @@ def validate_data(json_data) -> bool:
     data_time = json_data["current_conditions"]["time"]
     data_time_obj = datetime.datetime.fromtimestamp(data_time)
     now = datetime.datetime.now()
+
     delta = now - data_time_obj
-    minutes = delta.seconds / 60
-    if minutes > 30:
+    age_minutes = delta.seconds / 60
+
+    if age_minutes > CACHE_MINUTES:
         return False
     return True
 
