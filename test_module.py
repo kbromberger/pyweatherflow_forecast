@@ -11,7 +11,7 @@ import logging
 import json
 
 from pyweatherflow_forecast.wffcst_lib import WeatherFlow, WeatherFlowForecast
-from pyweatherflow_forecast.const import ICON_LIST
+# from pyweatherflow_forecast.const import ICON_LIST
 
 _LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -28,5 +28,5 @@ weatherflow = WeatherFlow(station_id, api_token)
 
 data: WeatherFlowForecast = weatherflow.get_forecast()
 for item in data:
-    print(item.temperature, item.icon)
+    print(item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability)
 

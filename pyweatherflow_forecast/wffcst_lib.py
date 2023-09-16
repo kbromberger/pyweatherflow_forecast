@@ -17,6 +17,7 @@ from urllib.request import urlopen
 import aiohttp
 
 from .const import ICON_LIST, WEATHERFLOW_FORECAST_URL
+from .data import WeatherFlowForecastDaily
 
 _LOGGER = logging.getLogger(__name__)
 # Timezone
@@ -217,7 +218,7 @@ class WeatherFlow:
             self._api.session = session
 
 
-    def get_forecast(self) -> List[WeatherFlowForecast]:
+    def get_forecast(self) -> List[WeatherFlowForecastDaily]:
         """
         Returns a list of forecasts. The first in list are the current one
         """
@@ -251,7 +252,7 @@ class WeatherFlow:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_forecast(api_result: dict) -> List[WeatherFlowForecast]:
+def _get_forecast(api_result: dict) -> List[WeatherFlowForecastDaily]:
     """Converts results from API to WeatherFlowForecast list"""
     forecasts = []
 
@@ -261,22 +262,15 @@ def _get_forecast(api_result: dict) -> List[WeatherFlowForecast]:
         icon = ICON_LIST.get(item["icon"], "exceptional")
         temperature = item["air_temp_high"]
         temp_low = item["air_temp_low"]
+        precipitation_probability = item["precip_probability"]
 
-        forecast = WeatherFlowForecast(
+        forecast = WeatherFlowForecastDaily(
             valid_time,
             temperature,
             temp_low,
             condition,
             icon,
-            humidity=0,
-            apparent_temperature=0,
-            precipitation=0,
-            precipitation_probability=0,
-            pressure=0,
-            wind_bearing=0,
-            wind_gust_speed=0,
-            wind_speed=0,
-            uv_index=0,
+            precipitation_probability,
         )
         forecasts.append(forecast)
 
