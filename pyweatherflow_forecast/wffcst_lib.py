@@ -17,7 +17,7 @@ from urllib.request import urlopen
 import aiohttp
 
 from .const import ICON_LIST, WEATHERFLOW_FORECAST_URL
-from .data import WeatherFlowForecastDaily
+from .data import WeatherFlowForecastDaily, WeatherFlowForecastHourly
 
 _LOGGER = logging.getLogger(__name__)
 # Timezone
@@ -25,112 +25,6 @@ UTC = datetime.timezone.utc
 
 class WeatherFlowForecastException(Exception):
     """Exception thrown if failing to access API"""
-
-class WeatherFlowForecast:
-    """Class to hold forecast data."""
-        # pylint: disable=R0913, R0902, R0914
-    def __init__(
-        self,
-        valid_time: datetime,
-        temperature: float,
-        temp_low: float,
-        condition: str,
-        icon: str,
-        humidity: int,
-        apparent_temperature: float,
-        precipitation: float,
-        precipitation_probability: int,
-        pressure: float,
-        wind_bearing: float,
-        wind_gust_speed: int,
-        wind_speed: int,
-        uv_index: float,
-    ) -> None:
-        """Constructor"""
-        self._valid_time = valid_time
-        self._temperature = temperature
-        self._temp_low = temp_low
-        self._condition = condition
-        self._icon = icon
-        self._humidity = humidity
-        self._apparent_temperature = apparent_temperature
-        self._precipitation = precipitation
-        self._precipitation_probability = precipitation_probability
-        self._pressure = pressure
-        self._wind_bearing = wind_bearing
-        self._wind_gust_speed = wind_gust_speed
-        self._wind_speed = wind_speed
-        self._uv_index = uv_index
-
-    @property
-    def temperature(self) -> float:
-        """Air temperature (Celcius)"""
-        return self._temperature
-
-    @property
-    def temp_low(self) -> float:
-        """Air temperature min during the day (Celcius)"""
-        return self._temp_low
-
-    @property
-    def condition(self) -> str:
-        """Weather condition text."""
-        return self._condition
-
-    @property
-    def icon(self) -> str:
-        """Weather condition symbol."""
-        return self._icon
-
-    @property
-    def humidity(self) -> int:
-        """Humidity (%)."""
-        return self._humidity
-
-    @property
-    def apparent_temperature(self) -> float:
-        """Feels like temperature (Celcius)."""
-        return self._apparent_temperature
-
-    @property
-    def precipitation(self) -> float:
-        """Precipitation (mm)."""
-        return self._precipitation
-
-    @property
-    def precipitation_probability (self) -> int:
-        """Posobility of Precipiation (%)."""
-        return self._precipitation_probability
-
-    @property
-    def pressure(self) -> float:
-        """Sea Level Pressure (MB)"""
-        return self._pressure
-
-    @property
-    def wind_bearing(self) -> float:
-        """Wind bearing (degrees)"""
-        return self._wind_bearing
-
-    @property
-    def wind_gust_speed(self) -> float:
-        """Wind gust (m/s)"""
-        return self._wind_gust_speed
-
-    @property
-    def wind_speed(self) -> float:
-        """Wind speed (m/s)"""
-        return self._wind_speed
-
-    @property
-    def uv_index(self) -> float:
-        """UV Index"""
-        return self._uv_index
-
-    @property
-    def valid_time(self) -> datetime:
-        """Valid time"""
-        return self._valid_time
 
 class WeatherFlowAPIBase:
     """
@@ -213,6 +107,7 @@ class WeatherFlow:
         self._station_id = station_id
         self._api_token = api_token
         self._api = api
+        self._json_data = None
 
         if session:
             self._api.session = session
@@ -222,17 +117,19 @@ class WeatherFlow:
         """
         Returns a list of forecasts. The first in list are the current one
         """
-        json_data = self._api.get_forecast_api(self._station_id, self._api_token)
-        return _get_forecast(json_data)
+        if self._json_data is None or not validate_data(self._json_data):
+            self._json_data = self._api.get_forecast_api(self._station_id, self._api_token)
+        return _get_forecast(self._json_data)
 
-    def get_forecast_hour(self) -> List[WeatherFlowForecast]:
+    def get_forecast_hour(self) -> List[WeatherFlowForecastHourly]:
         """
         Returns a list of forecasts by hour. The first in list are the current one
         """
-        json_data = self._api.get_forecast_api(self._station_id, self._api_token)
-        return _get_forecast_hour(json_data)
+        if self._json_data is None or not validate_data(self._json_data):
+            self._json_data = self._api.get_forecast_api(self._station_id, self._api_token)
+        return _get_forecast_hour(self._json_data)
 
-    async def async_get_forecast(self) -> List[WeatherFlowForecast]:
+    async def async_get_forecast(self) -> List[WeatherFlowForecastDaily]:
         """
         Returns a list of forecasts. The first in list are the current one
         """
@@ -241,7 +138,7 @@ class WeatherFlow:
         )
         return _get_forecast(json_data)
 
-    async def async_get_forecast_hour(self) -> List[WeatherFlowForecast]:
+    async def async_get_forecast_hour(self) -> List[WeatherFlowForecastHourly]:
         """
         Returns a list of forecasts by hour. The first in list are the current one
         """
@@ -249,6 +146,17 @@ class WeatherFlow:
             self._station_id, self._api_token
         )
         return _get_forecast_hour(json_data)
+
+def validate_data(json_data) -> bool:
+    """Returns true if data is valid else false."""
+    data_time = json_data["current_conditions"]["time"]
+    data_time_obj = datetime.datetime.fromtimestamp(data_time)
+    now = datetime.datetime.now()
+    delta = now - data_time_obj
+    minutes = delta.seconds / 60
+    if minutes > 30:
+        return False
+    return True
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
@@ -277,22 +185,41 @@ def _get_forecast(api_result: dict) -> List[WeatherFlowForecastDaily]:
     return forecasts
 
 
-def _get_forecast_hour(api_result: dict) -> List[WeatherFlowForecast]:
+def _get_forecast_hour(api_result: dict) -> List[WeatherFlowForecastHourly]:
     """Converts results from API to WeatherFlowForecast list"""
     forecasts = []
 
-    # Need the ordered dict to get
-    # the days in order in next stage
-    forecasts_ordered = OrderedDict()
+    for item in api_result["forecast"]["hourly"]:
+        valid_time = datetime.datetime.utcfromtimestamp(item["time"]).replace(tzinfo=UTC)
+        condition = item.get("conditions", None)
+        icon = ICON_LIST.get(item["icon"], "exceptional")
+        temperature = item.get("air_temperature", None)
+        apparent_temperature = item.get("feels_like", None)
+        precipitation = item.get("precip", None)
+        precipitation_probability = item.get("precip_probability", None)
+        humidity = item.get("relative_humidity", None)
+        pressure = item.get("sea_level_pressure", None)
+        uv_index = item.get("uv", None)
+        wind_speed = item.get("wind_avg", None)
+        wind_gust_speed = item.get("wind_gust", None)
+        wind_bearing = item.get("wind_direction", None)
 
-    forecasts_ordered = _get_all_forecast_from_api(api_result)
-
-    for day in forecasts_ordered:
-        for forecast_hour in forecasts_ordered[day]:
-            forecast = forecast_hour
-            forecast._total_precipitation = forecast._mean_precipitation
-
-            forecasts.append(forecast)
+        forecast = WeatherFlowForecastHourly(
+            valid_time,
+            temperature,
+            apparent_temperature,
+            condition,
+            icon,
+            humidity,
+            precipitation,
+            precipitation_probability,
+            pressure,
+            wind_bearing,
+            wind_gust_speed,
+            wind_speed,
+            uv_index,
+        )
+        forecasts.append(forecast)
 
     return forecasts
 

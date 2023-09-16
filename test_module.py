@@ -8,9 +8,13 @@ from __future__ import annotations
 from dotenv import load_dotenv
 import os
 import logging
-import json
+import datetime
 
-from pyweatherflow_forecast.wffcst_lib import WeatherFlow, WeatherFlowForecast
+from pyweatherflow_forecast import (
+    WeatherFlow,
+    WeatherFlowForecastDaily,
+    WeatherFlowForecastHourly,
+)
 # from pyweatherflow_forecast.const import ICON_LIST
 
 _LOGGER = logging.getLogger(__name__)
@@ -22,11 +26,10 @@ api_token = os.getenv("API_TOKEN")
 
 weatherflow = WeatherFlow(station_id, api_token)
 
-# key = "possibly-rainy-day"
-# value = ICON_LIST.get(key, "exceptional")
-# print(value)
-
-data: WeatherFlowForecast = weatherflow.get_forecast()
+data: WeatherFlowForecastDaily = weatherflow.get_forecast()
 for item in data:
     print(item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability)
 
+hourly: WeatherFlowForecastHourly = weatherflow.get_forecast_hour()
+for item in hourly:
+    print(item.temperature, item.apparent_temperature, item.icon, item.condition, item.precipitation, item.precipitation_probability)
