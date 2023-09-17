@@ -12,6 +12,7 @@ import datetime
 
 from pyweatherflow_forecast import (
     WeatherFlow,
+    WeatherFlowForecastData,
     WeatherFlowForecastDaily,
     WeatherFlowForecastHourly,
 )
@@ -26,18 +27,20 @@ api_token = os.getenv("API_TOKEN")
 
 weatherflow = WeatherFlow(station_id, api_token)
 
-data_time = 1694878753
-data_time_obj = datetime.datetime.fromtimestamp(data_time)
-now = datetime.datetime.now()
+# data_time = 1694878753
+# data_time_obj = datetime.datetime.fromtimestamp(data_time)
+# now = datetime.datetime.now()
 
-delta = now - data_time_obj
-age_minutes = delta.seconds / 60
-print(age_minutes)
+# delta = now - data_time_obj
+# age_minutes = delta.seconds / 60
+# print(age_minutes)
 
-# data: WeatherFlowForecastDaily = weatherflow.get_forecast()
-# for item in data:
+# data: WeatherFlowForecastData = weatherflow.get_forecast()
+# print("FEELS LIKE: ", data.apparent_temperature)
+# for item in data.forecast:
 #     print(item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability)
 
-# hourly: WeatherFlowForecastHourly = weatherflow.get_forecast_hour()
-# for item in hourly:
-#     print(item.temperature, item.apparent_temperature, item.icon, item.condition, item.precipitation, item.precipitation_probability)
+hourly: WeatherFlowForecastData = weatherflow.get_forecast_hour()
+print("FEELS LIKE: ", hourly.apparent_temperature)
+for item in hourly.forecast:
+    print(item. valid_time, item.temperature, item.apparent_temperature, item.icon, item.condition, item.precipitation, item.precipitation_probability)

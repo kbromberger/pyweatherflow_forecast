@@ -2,6 +2,128 @@
 
 from __future__ import annotations
 from datetime import datetime
+from typing import List
+
+from .const import FORECAST_TYPE_DAILY, FORECAST_TYPE_HOURLY
+
+class WeatherFlowForecastData:
+    """Class to hold forecast data."""
+        # pylint: disable=R0913, R0902, R0914
+    def __init__(
+        self,
+        valid_time: datetime,
+        apparent_temperature: float,
+        condition: str,
+        dew_point: float,
+        humidity: int,
+        icon: str,
+        precipitation: float,
+        pressure: float,
+        temperature: float,
+        uv_index: int,
+        wind_bearing: int,
+        wind_gust_speed: float,
+        wind_speed: float,
+        forecast_type = int,
+        forecast = None
+    ) -> None:
+        """Constructor"""
+        self._valid_time = valid_time
+        self._apparent_temperature = apparent_temperature
+        self._condition = condition
+        self._dew_point = dew_point
+        self._humidity = humidity
+        self._icon = icon
+        self._precipitation = precipitation
+        self._pressure = pressure
+        self._temperature = temperature
+        self._uv_index = uv_index
+        self._wind_bearing = wind_bearing
+        self._wind_gust_speed = wind_gust_speed
+        self._wind_speed = wind_speed
+        self._forecast_type = forecast_type
+        self._forecast = forecast
+
+
+    @property
+    def temperature(self) -> float:
+        """Air temperature (Celcius)"""
+        return self._temperature
+
+    @property
+    def dew_point(self) -> float:
+        """Dew Point (Celcius)"""
+        return self._dew_point
+
+    @property
+    def condition(self) -> str:
+        """Weather condition text."""
+        return self._condition
+
+    @property
+    def icon(self) -> str:
+        """Weather condition symbol."""
+        return self._icon
+
+    @property
+    def humidity(self) -> int:
+        """Humidity (%)."""
+        return self._humidity
+
+    @property
+    def apparent_temperature(self) -> float:
+        """Feels like temperature (Celcius)."""
+        return self._apparent_temperature
+
+    @property
+    def precipitation(self) -> float:
+        """Precipitation (mm)."""
+        return self._precipitation
+
+    @property
+    def pressure(self) -> float:
+        """Sea Level Pressure (MB)"""
+        return self._pressure
+
+    @property
+    def wind_bearing(self) -> float:
+        """Wind bearing (degrees)"""
+        return self._wind_bearing
+
+    @property
+    def wind_gust_speed(self) -> float:
+        """Wind gust (m/s)"""
+        return self._wind_gust_speed
+
+    @property
+    def wind_speed(self) -> float:
+        """Wind speed (m/s)"""
+        return self._wind_speed
+
+    @property
+    def uv_index(self) -> float:
+        """UV Index"""
+        return self._uv_index
+
+    @property
+    def valid_time(self) -> datetime:
+        """Valid time"""
+        return self._valid_time
+
+    @property
+    def forecast(self):
+        """Forecast List"""
+        if self._forecast_type == FORECAST_TYPE_DAILY:
+            forecast_data: List[WeatherFlowForecastDaily] = self._forecast
+            return forecast_data
+
+        forecast_data: List[WeatherFlowForecastHourly] = self._forecast
+        return forecast_data
+
+    @forecast.setter
+    def forecast(self, new_forecast):
+        """Sets a new Value for forecast"""
+        self._forecast = new_forecast
 
 class WeatherFlowForecastDaily:
     """Class to hold daily forecast data."""
@@ -152,3 +274,4 @@ class WeatherFlowForecastHourly:
     def valid_time(self) -> datetime:
         """Valid time"""
         return self._valid_time
+

@@ -5,7 +5,6 @@ WeatherFlows Better Forecast API.
 from __future__ import annotations
 
 import abc
-import copy
 import datetime
 import json
 import logging
@@ -16,8 +15,18 @@ from urllib.request import urlopen
 
 import aiohttp
 
-from .const import CACHE_MINUTES, ICON_LIST, WEATHERFLOW_FORECAST_URL
-from .data import WeatherFlowForecastDaily, WeatherFlowForecastHourly
+from .const import (
+    CACHE_MINUTES,
+    FORECAST_TYPE_DAILY,
+    FORECAST_TYPE_HOURLY,
+    ICON_LIST,
+    WEATHERFLOW_FORECAST_URL
+)
+from .data import (
+    WeatherFlowForecastData,
+    WeatherFlowForecastDaily,
+    WeatherFlowForecastHourly
+)
 
 _LOGGER = logging.getLogger(__name__)
 # Timezone
@@ -179,15 +188,20 @@ def validate_data(json_data) -> bool:
 # pylint: disable=R0914, R0912, W0212, R0915
 def _get_forecast(api_result: dict) -> List[WeatherFlowForecastDaily]:
     """Converts results from API to WeatherFlowForecast list"""
+
+    # Get Current Conditions
+    current_conditions: WeatherFlowForecastData = _get_forecast_current(api_result, FORECAST_TYPE_DAILY)
+
+    # Add Forecast Details
     forecasts = []
 
     for item in api_result["forecast"]["daily"]:
         valid_time = datetime.datetime.utcfromtimestamp(item["day_start_local"]).replace(tzinfo=UTC)
-        condition = item["conditions"]
+        condition = item.get("conditions", "Data Error")
         icon = ICON_LIST.get(item["icon"], "exceptional")
-        temperature = item["air_temp_high"]
-        temp_low = item["air_temp_low"]
-        precipitation_probability = item["precip_probability"]
+        temperature = item.get("air_temp_high", None)
+        temp_low = item.get("air_temp_low", None)
+        precipitation_probability = item.get("precip_probability", None)
 
         forecast = WeatherFlowForecastDaily(
             valid_time,
@@ -199,11 +213,18 @@ def _get_forecast(api_result: dict) -> List[WeatherFlowForecastDaily]:
         )
         forecasts.append(forecast)
 
-    return forecasts
+    current_conditions.forecast = forecasts
+    return current_conditions
 
 
+# pylint: disable=R0914, R0912, W0212, R0915
 def _get_forecast_hour(api_result: dict) -> List[WeatherFlowForecastHourly]:
     """Converts results from API to WeatherFlowForecast list"""
+
+    # Get Current Conditions
+    current_conditions = _get_forecast_current(api_result, FORECAST_TYPE_HOURLY)
+
+    # Add Forecast Details
     forecasts = []
 
     for item in api_result["forecast"]["hourly"]:
@@ -238,7 +259,47 @@ def _get_forecast_hour(api_result: dict) -> List[WeatherFlowForecastHourly]:
         )
         forecasts.append(forecast)
 
-    return forecasts
+    current_conditions.forecast = forecasts
+    return current_conditions
+
+# pylint: disable=R0914, R0912, W0212, R0915
+def _get_forecast_current(api_result: dict, forecast_type: int) -> List[WeatherFlowForecastData]:
+    """Converts results from API to WeatherFlowForecast list"""
+
+    item = api_result["current_conditions"]
+
+    valid_time = datetime.datetime.utcfromtimestamp(item["time"]).replace(tzinfo=UTC)
+    condition = item.get("conditions", None)
+    icon = ICON_LIST.get(item["icon"], "exceptional")
+    temperature = item.get("air_temperature", None)
+    dew_point = item.get("dew_point", None)
+    apparent_temperature = item.get("feels_like", None)
+    precipitation = item.get("precip_accum_local_day", None)
+    humidity = item.get("relative_humidity", None)
+    pressure = item.get("sea_level_pressure", None)
+    uv_index = item.get("uv", None)
+    wind_speed = item.get("wind_avg", None)
+    wind_gust_speed = item.get("wind_gust", None)
+    wind_bearing = item.get("wind_direction", None)
+
+    current_condition = WeatherFlowForecastData(
+        valid_time,
+        apparent_temperature,
+        condition,
+        dew_point,
+        humidity,
+        icon,
+        precipitation,
+        pressure,
+        temperature,
+        uv_index,
+        wind_bearing,
+        wind_gust_speed,
+        wind_speed,
+        forecast_type
+    )
+
+    return current_condition
 
 
 # pylint: disable=R0914, R0912, W0212, R0915

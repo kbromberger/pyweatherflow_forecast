@@ -3,6 +3,9 @@ from __future__ import annotations
 
 CACHE_MINUTES = 30
 
+FORECAST_TYPE_DAILY = 0
+FORECAST_TYPE_HOURLY = 1
+
 WEATHERFLOW_BASE_URL = "https://swd.weatherflow.com/swd/rest"
 WEATHERFLOW_FORECAST_URL = f"{WEATHERFLOW_BASE_URL}/better_forecast?station_id="
 
