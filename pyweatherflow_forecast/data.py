@@ -275,3 +275,38 @@ class WeatherFlowForecastHourly:
         """Valid time"""
         return self._valid_time
 
+class WeatherFlowStationData:
+    """Class to hold station data."""
+        # pylint: disable=R0913, R0902, R0914
+    def __init__(
+            self,
+            station_name: str,
+            latitude: float,
+            longitude: float,
+            timezone: str,
+    ) -> None:
+        """Constructor."""
+        self._station_name = station_name
+        self._latitude = latitude
+        self._longitude = longitude
+        self._timezone = timezone
+
+    @property
+    def station_name(self) -> str:
+        """Name of the Station"""
+        return self._station_name
+
+    @property
+    def latitude(self) -> float:
+        """Latitude of station."""
+        return self._latitude
+
+    @property
+    def longitude(self) -> float:
+        """Longitude of station."""
+        return self._longitude
+
+    @property
+    def timezone(self) -> str:
+        """Timezone of station."""
+        return self._timezone

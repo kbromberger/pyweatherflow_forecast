@@ -19,12 +19,14 @@ from .const import (
     FORECAST_TYPE_DAILY,
     FORECAST_TYPE_HOURLY,
     ICON_LIST,
-    WEATHERFLOW_FORECAST_URL
+    WEATHERFLOW_FORECAST_URL,
+    WEATHERFLOW_STATION_URL,
 )
 from .data import (
     WeatherFlowForecastData,
     WeatherFlowForecastDaily,
-    WeatherFlowForecastHourly
+    WeatherFlowForecastHourly,
+    WeatherFlowStationData,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -47,6 +49,13 @@ class WeatherFlowAPIBase:
         )
 
     @abc.abstractmethod
+    def get_station_api(self, station_id: int, api_token: str) -> Dict[str, Any]:
+        """Override this"""
+        raise NotImplementedError(
+            "users must define get_station to use this base class"
+        )
+
+    @abc.abstractmethod
     async def async_get_forecast_api(
         self, station_id: int, api_token: str
     ) -> Dict[str, Any]:
@@ -55,9 +64,18 @@ class WeatherFlowAPIBase:
             "users must define get_forecast to use this base class"
         )
 
+    @abc.abstractmethod
+    async def async_get_station_api(
+        self, station_id: int, api_token: str
+    ) -> Dict[str, Any]:
+        """Override this"""
+        raise NotImplementedError(
+            "users must define get_station to use this base class"
+        )
+
 
 class WeatherFlowAPI(WeatherFlowAPIBase):
-    """Default implementation for WeatherFlow Forecast api"""
+    """Default implementation for WeatherFlow api"""
 
     def __init__(self) -> None:
         """Init the API with or without session"""
@@ -72,6 +90,18 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
         json_data = json.loads(data)
 
         return json_data
+
+    def get_station_api(self, station_id: int, api_token: str) -> Dict[str, Any]:
+        """gets data from API"""
+        api_url = f"{WEATHERFLOW_STATION_URL}{station_id}?token={api_token}"
+        _LOGGER.debug("URL: %s", api_url)
+
+        response = urlopen(api_url)
+        data = response.read().decode("utf-8")
+        json_data = json.loads(data)
+
+        return json_data
+
 
     async def async_get_forecast_api(
         self, station_id: int, api_token: str
@@ -89,7 +119,31 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
                 if is_new_session:
                     await self.session.close()
                 raise WeatherFlowForecastException(
-                    f"Failed to access weather API with status code {response.status}"
+                    f"Failed to access weatherFlow API with status code {response.status}"
+                )
+            data = await response.text()
+            if is_new_session:
+                await self.session.close()
+
+            return json.loads(data)
+
+    async def async_get_station_api(
+        self, station_id: int, api_token: str
+    ) -> Dict[str, Any]:
+        """gets data from API asynchronous"""
+        api_url = f"{WEATHERFLOW_STATION_URL}{station_id}?token={api_token}"
+
+        is_new_session = False
+        if self.session is None:
+            self.session = aiohttp.ClientSession()
+            is_new_session = True
+
+        async with self.session.get(api_url) as response:
+            if response.status != 200:
+                if is_new_session:
+                    await self.session.close()
+                raise WeatherFlowForecastException(
+                    f"Failed to access weatherFlow API with status code {response.status}"
                 )
             data = await response.text()
             if is_new_session:
@@ -141,6 +195,14 @@ class WeatherFlow:
             self._json_data = self._api.get_forecast_api(self._station_id, self._api_token)
         return _get_forecast_hour(self._json_data)
 
+    def get_station(self) -> List[WeatherFlowStationData]:
+        """
+        Returns a list of station information.
+        """
+        json_data = self._api.get_station_api(self._station_id, self._api_token)
+
+        return _get_station(json_data)
+
     async def async_get_forecast(self) -> List[WeatherFlowForecastData]:
         """
         Returns a list of forecasts. The first in list are the current one
@@ -168,6 +230,15 @@ class WeatherFlow:
                 self._station_id, self._api_token
             )
         return _get_forecast_hour(json_data)
+
+    async def async_get_station(self) -> List[WeatherFlowStationData]:
+        """
+        Returns a list with Station information.
+        """
+        json_data = await self._api.async_get_station_api(
+                self._station_id, self._api_token
+            )
+        return _get_station(json_data)
 
 def validate_data(json_data) -> bool:
     """Returns true if data is valid else false."""
@@ -298,3 +369,25 @@ def _get_forecast_current(api_result: dict, forecast_type: int) -> List[WeatherF
     )
 
     return current_condition
+
+
+# pylint: disable=R0914, R0912, W0212, R0915
+def _get_station(api_result: dict) -> List[WeatherFlowStationData]:
+    """Converts results from API to WeatherFlowForecast list"""
+
+    item = api_result["stations"][0]
+
+    station_name = item.get("name", None)
+    latitude = item.get("latitude", None)
+    longitude = item.get("longitude", None)
+    timezone = item.get("timezone", None)
+
+    station_data = WeatherFlowStationData(
+        station_name,
+        latitude,
+        longitude,
+        timezone
+    )
+
+    return station_data
+
