@@ -9,7 +9,6 @@ import datetime
 import json
 import logging
 
-from collections import OrderedDict
 from typing import List, Any, Dict
 from urllib.request import urlopen
 
