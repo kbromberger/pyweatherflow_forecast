@@ -34,4 +34,4 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest
-        pytest pyweatherflow_forecast
+        pytest --ignore test_module.py

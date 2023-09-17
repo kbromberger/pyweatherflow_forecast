@@ -120,7 +120,7 @@ class WeatherFlow:
             self._api.session = session
 
 
-    def get_forecast(self) -> List[WeatherFlowForecastDaily]:
+    def get_forecast(self) -> List[WeatherFlowForecastData]:
         """
         Returns a list of forecasts. The first in list are the current one
         """
@@ -131,7 +131,7 @@ class WeatherFlow:
 
         return _get_forecast(self._json_data)
 
-    def get_forecast_hour(self) -> List[WeatherFlowForecastHourly]:
+    def get_forecast_hour(self) -> List[WeatherFlowForecastData]:
         """
         Returns a list of forecasts by hour. The first in list are the current one
         """
@@ -141,7 +141,7 @@ class WeatherFlow:
             self._json_data = self._api.get_forecast_api(self._station_id, self._api_token)
         return _get_forecast_hour(self._json_data)
 
-    async def async_get_forecast(self) -> List[WeatherFlowForecastDaily]:
+    async def async_get_forecast(self) -> List[WeatherFlowForecastData]:
         """
         Returns a list of forecasts. The first in list are the current one
         """
@@ -155,7 +155,7 @@ class WeatherFlow:
             )
         return _get_forecast(json_data)
 
-    async def async_get_forecast_hour(self) -> List[WeatherFlowForecastHourly]:
+    async def async_get_forecast_hour(self) -> List[WeatherFlowForecastData]:
         """
         Returns a list of forecasts by hour. The first in list are the current one
         """
@@ -184,7 +184,7 @@ def validate_data(json_data) -> bool:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_forecast(api_result: dict) -> List[WeatherFlowForecastDaily]:
+def _get_forecast(api_result: dict) -> List[WeatherFlowForecastData]:
     """Converts results from API to WeatherFlowForecast list"""
 
     # Get Current Conditions
@@ -216,7 +216,7 @@ def _get_forecast(api_result: dict) -> List[WeatherFlowForecastDaily]:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_forecast_hour(api_result: dict) -> List[WeatherFlowForecastHourly]:
+def _get_forecast_hour(api_result: dict) -> List[WeatherFlowForecastData]:
     """Converts results from API to WeatherFlowForecast list"""
 
     # Get Current Conditions
