@@ -34,4 +34,4 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest
-        pytest --ignore=pyweatherflow_forecast/test_module.py
+        pytest -k "not test_module.py"
