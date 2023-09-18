@@ -11,7 +11,7 @@ class WeatherFlowForecastData:
         # pylint: disable=R0913, R0902, R0914
     def __init__(
         self,
-        valid_time: datetime,
+        datetime: datetime,
         apparent_temperature: float,
         condition: str,
         dew_point: float,
@@ -28,7 +28,7 @@ class WeatherFlowForecastData:
         forecast_hourly: WeatherFlowForecastHourly = None,
     ) -> None:
         """Constructor"""
-        self._valid_time = valid_time
+        self._datetime = datetime
         self._apparent_temperature = apparent_temperature
         self._condition = condition
         self._dew_point = dew_point
@@ -106,9 +106,9 @@ class WeatherFlowForecastData:
         return self._uv_index
 
     @property
-    def valid_time(self) -> datetime:
+    def datetime(self) -> datetime:
         """Valid time"""
-        return self._valid_time
+        return self._datetime
 
     @property
     def forecast_daily(self):
@@ -135,7 +135,7 @@ class WeatherFlowForecastDaily:
         # pylint: disable=R0913, R0902, R0914
     def __init__(
         self,
-        valid_time: datetime,
+        datetime: datetime,
         temperature: float,
         temp_low: float,
         condition: str,
@@ -143,7 +143,7 @@ class WeatherFlowForecastDaily:
         precipitation_probability: int,
     ) -> None:
         """Constructor"""
-        self._valid_time = valid_time
+        self._datetime = datetime
         self._temperature = temperature
         self._temp_low = temp_low
         self._condition = condition
@@ -176,9 +176,9 @@ class WeatherFlowForecastDaily:
         return self._precipitation_probability
 
     @property
-    def valid_time(self) -> datetime:
+    def datetime(self) -> datetime:
         """Valid time"""
-        return self._valid_time
+        return self._datetime
 
 
 class WeatherFlowForecastHourly:
@@ -186,7 +186,7 @@ class WeatherFlowForecastHourly:
         # pylint: disable=R0913, R0902, R0914
     def __init__(
         self,
-        valid_time: datetime,
+        datetime: datetime,
         temperature: float,
         apparent_temperature: float,
         condition: str,
@@ -201,7 +201,7 @@ class WeatherFlowForecastHourly:
         uv_index: float,
     ) -> None:
         """Constructor"""
-        self._valid_time = valid_time
+        self._datetime = datetime
         self._temperature = temperature
         self._apparent_temperature = apparent_temperature
         self._condition = condition
@@ -276,9 +276,9 @@ class WeatherFlowForecastHourly:
         return self._uv_index
 
     @property
-    def valid_time(self) -> datetime:
+    def datetime(self) -> datetime:
         """Valid time"""
-        return self._valid_time
+        return self._datetime
 
 class WeatherFlowStationData:
     """Class to hold station data."""

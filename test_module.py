@@ -34,5 +34,5 @@ for item in data.forecast_daily:
     print(item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability)
 print("***** HOURLY DATA *****")
 for item in data.forecast_hourly:
-    print(item. valid_time, item.temperature, item.apparent_temperature, item.icon, item.condition, item.precipitation, item.precipitation_probability)
+    print(item.datetime, item.temperature, item.apparent_temperature, item.icon, item.condition, item.precipitation, item.precipitation_probability)
 
