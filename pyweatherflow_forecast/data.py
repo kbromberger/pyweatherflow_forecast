@@ -25,7 +25,8 @@ class WeatherFlowForecastData:
         wind_gust_speed: float,
         wind_speed: float,
         forecast_type = int,
-        forecast = None
+        forecast_daily: WeatherFlowForecastDaily = None,
+        forecast_hourly: WeatherFlowForecastHourly = None,
     ) -> None:
         """Constructor"""
         self._valid_time = valid_time
@@ -42,7 +43,8 @@ class WeatherFlowForecastData:
         self._wind_gust_speed = wind_gust_speed
         self._wind_speed = wind_speed
         self._forecast_type = forecast_type
-        self._forecast = forecast
+        self._forecast_daily = forecast_daily
+        self._forecast_hourly = forecast_hourly
 
 
     @property
@@ -111,19 +113,24 @@ class WeatherFlowForecastData:
         return self._valid_time
 
     @property
-    def forecast(self):
+    def forecast_daily(self):
         """Forecast List"""
-        if self._forecast_type == FORECAST_TYPE_DAILY:
-            forecast_data: List[WeatherFlowForecastDaily] = self._forecast
-            return forecast_data
+        return self._forecast_daily
 
-        forecast_data: List[WeatherFlowForecastHourly] = self._forecast
-        return forecast_data
+    @forecast_daily.setter
+    def forecast_daily(self, new_forecast):
+        """Sets a new Value for forecast daily"""
+        self._forecast_daily = new_forecast
 
-    @forecast.setter
-    def forecast(self, new_forecast):
-        """Sets a new Value for forecast"""
-        self._forecast = new_forecast
+    @property
+    def forecast_hourly(self):
+        """Forecast List"""
+        return self._forecast_hourly
+
+    @forecast_hourly.setter
+    def forecast_hourly(self, new_forecast):
+        """Sets a new Value for forecast hourly"""
+        self._forecast_hourly = new_forecast
 
 class WeatherFlowForecastDaily:
     """Class to hold daily forecast data."""

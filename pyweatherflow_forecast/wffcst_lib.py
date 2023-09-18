@@ -261,9 +261,10 @@ def _get_forecast(api_result: dict) -> List[WeatherFlowForecastData]:
     # Get Current Conditions
     current_conditions: WeatherFlowForecastData = _get_forecast_current(api_result, FORECAST_TYPE_DAILY)
 
-    # Add Forecast Details
-    forecasts = []
+    forecasts_daily = []
+    forecasts_hourly = []
 
+    # Add daily forecast details
     for item in api_result["forecast"]["daily"]:
         valid_time = datetime.datetime.utcfromtimestamp(item["day_start_local"]).replace(tzinfo=UTC)
         condition = item.get("conditions", "Data Error")
@@ -280,9 +281,45 @@ def _get_forecast(api_result: dict) -> List[WeatherFlowForecastData]:
             icon,
             precipitation_probability,
         )
-        forecasts.append(forecast)
+        forecasts_daily.append(forecast)
 
-    current_conditions.forecast = forecasts
+    current_conditions.forecast_daily = forecasts_daily
+
+    # Add Hourly Forecast
+    for item in api_result["forecast"]["hourly"]:
+        valid_time = datetime.datetime.utcfromtimestamp(item["time"]).replace(tzinfo=UTC)
+        condition = item.get("conditions", None)
+        icon = ICON_LIST.get(item["icon"], "exceptional")
+        temperature = item.get("air_temperature", None)
+        apparent_temperature = item.get("feels_like", None)
+        precipitation = item.get("precip", None)
+        precipitation_probability = item.get("precip_probability", None)
+        humidity = item.get("relative_humidity", None)
+        pressure = item.get("sea_level_pressure", None)
+        uv_index = item.get("uv", None)
+        wind_speed = item.get("wind_avg", None)
+        wind_gust_speed = item.get("wind_gust", None)
+        wind_bearing = item.get("wind_direction", None)
+
+        forecast = WeatherFlowForecastHourly(
+            valid_time,
+            temperature,
+            apparent_temperature,
+            condition,
+            icon,
+            humidity,
+            precipitation,
+            precipitation_probability,
+            pressure,
+            wind_bearing,
+            wind_gust_speed,
+            wind_speed,
+            uv_index,
+        )
+        forecasts_hourly.append(forecast)
+
+    current_conditions.forecast_hourly = forecasts_hourly
+
     return current_conditions
 
 
