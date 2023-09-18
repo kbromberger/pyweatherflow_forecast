@@ -24,7 +24,6 @@ class WeatherFlowForecastData:
         wind_bearing: int,
         wind_gust_speed: float,
         wind_speed: float,
-        forecast_type = int,
         forecast_daily: WeatherFlowForecastDaily = None,
         forecast_hourly: WeatherFlowForecastHourly = None,
     ) -> None:
@@ -42,7 +41,6 @@ class WeatherFlowForecastData:
         self._wind_bearing = wind_bearing
         self._wind_gust_speed = wind_gust_speed
         self._wind_speed = wind_speed
-        self._forecast_type = forecast_type
         self._forecast_daily = forecast_daily
         self._forecast_hourly = forecast_hourly
 

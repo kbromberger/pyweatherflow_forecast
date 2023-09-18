@@ -185,16 +185,6 @@ class WeatherFlow:
 
         return _get_forecast(self._json_data)
 
-    def get_forecast_hour(self) -> List[WeatherFlowForecastData]:
-        """
-        Returns a list of forecasts by hour. The first in list are the current one
-        """
-        if self._json_data is None:
-            self._json_data = self._api.get_forecast_api(self._station_id, self._api_token)
-        elif not validate_data(self._json_data):
-            self._json_data = self._api.get_forecast_api(self._station_id, self._api_token)
-        return _get_forecast_hour(self._json_data)
-
     def get_station(self) -> List[WeatherFlowStationData]:
         """
         Returns a list of station information.
@@ -207,29 +197,16 @@ class WeatherFlow:
         """
         Returns a list of forecasts. The first in list are the current one
         """
-        if self._json_data is None and not validate_data(self._json_data):
-            json_data = await self._api.async_get_forecast_api(
+        if self._json_data is None:
+            self._json_data = await self._api.async_get_forecast_api(
                 self._station_id, self._api_token
             )
         elif not validate_data(self._json_data):
-            json_data = await self._api.async_get_forecast_api(
+            self._json_data = await self._api.async_get_forecast_api(
                 self._station_id, self._api_token
             )
-        return _get_forecast(json_data)
+        return _get_forecast(self._json_data)
 
-    async def async_get_forecast_hour(self) -> List[WeatherFlowForecastData]:
-        """
-        Returns a list of forecasts by hour. The first in list are the current one
-        """
-        if self._json_data is None and not validate_data(self._json_data):
-            json_data = await self._api.async_get_forecast_api(
-                self._station_id, self._api_token
-            )
-        elif not validate_data(self._json_data):
-            json_data = await self._api.async_get_forecast_api(
-                self._station_id, self._api_token
-            )
-        return _get_forecast_hour(json_data)
 
     async def async_get_station(self) -> List[WeatherFlowStationData]:
         """
@@ -259,7 +236,7 @@ def _get_forecast(api_result: dict) -> List[WeatherFlowForecastData]:
     """Converts results from API to WeatherFlowForecast list"""
 
     # Get Current Conditions
-    current_conditions: WeatherFlowForecastData = _get_forecast_current(api_result, FORECAST_TYPE_DAILY)
+    current_conditions: WeatherFlowForecastData = _get_forecast_current(api_result)
 
     forecasts_daily = []
     forecasts_hourly = []
@@ -324,52 +301,7 @@ def _get_forecast(api_result: dict) -> List[WeatherFlowForecastData]:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_forecast_hour(api_result: dict) -> List[WeatherFlowForecastData]:
-    """Converts results from API to WeatherFlowForecast list"""
-
-    # Get Current Conditions
-    current_conditions = _get_forecast_current(api_result, FORECAST_TYPE_HOURLY)
-
-    # Add Forecast Details
-    forecasts = []
-
-    for item in api_result["forecast"]["hourly"]:
-        valid_time = datetime.datetime.utcfromtimestamp(item["time"]).replace(tzinfo=UTC)
-        condition = item.get("conditions", None)
-        icon = ICON_LIST.get(item["icon"], "exceptional")
-        temperature = item.get("air_temperature", None)
-        apparent_temperature = item.get("feels_like", None)
-        precipitation = item.get("precip", None)
-        precipitation_probability = item.get("precip_probability", None)
-        humidity = item.get("relative_humidity", None)
-        pressure = item.get("sea_level_pressure", None)
-        uv_index = item.get("uv", None)
-        wind_speed = item.get("wind_avg", None)
-        wind_gust_speed = item.get("wind_gust", None)
-        wind_bearing = item.get("wind_direction", None)
-
-        forecast = WeatherFlowForecastHourly(
-            valid_time,
-            temperature,
-            apparent_temperature,
-            condition,
-            icon,
-            humidity,
-            precipitation,
-            precipitation_probability,
-            pressure,
-            wind_bearing,
-            wind_gust_speed,
-            wind_speed,
-            uv_index,
-        )
-        forecasts.append(forecast)
-
-    current_conditions.forecast = forecasts
-    return current_conditions
-
-# pylint: disable=R0914, R0912, W0212, R0915
-def _get_forecast_current(api_result: dict, forecast_type: int) -> List[WeatherFlowForecastData]:
+def _get_forecast_current(api_result: dict) -> List[WeatherFlowForecastData]:
     """Converts results from API to WeatherFlowForecast list"""
 
     item = api_result["current_conditions"]
@@ -402,7 +334,6 @@ def _get_forecast_current(api_result: dict, forecast_type: int) -> List[WeatherF
         wind_bearing,
         wind_gust_speed,
         wind_speed,
-        forecast_type
     )
 
     return current_condition
