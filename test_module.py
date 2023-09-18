@@ -24,8 +24,8 @@ api_token = os.getenv("API_TOKEN")
 
 weatherflow = WeatherFlow(station_id, api_token)
 
-# data: WeatherFlowStationData = weatherflow.get_station()
-# print("STATION NAME: ", data.station_name)
+data: WeatherFlowStationData = weatherflow.get_station()
+print("STATION NAME: ", data.station_name)
 
 data: WeatherFlowForecastData = weatherflow.get_forecast()
 print("TEMPERATURE: ", data.temperature)
