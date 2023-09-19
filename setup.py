@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pyweatherflow-forecast",
-    version="0.3.1",
+    version="0.3.2",
     author="briis",
     author_email="bjarne@briis.com",
     description="Gets the weather forecast data from WeatherFlow",
