@@ -141,6 +141,9 @@ class WeatherFlowForecastDaily:
         condition: str,
         icon: str,
         precipitation_probability: int,
+        precipitation: float,
+        wind_bearing: int,
+        wind_speed: float,
     ) -> None:
         """Constructor"""
         self._datetime = datetime
@@ -149,6 +152,14 @@ class WeatherFlowForecastDaily:
         self._condition = condition
         self._icon = icon
         self._precipitation_probability = precipitation_probability
+        self._precipitation = precipitation
+        self._wind_bearing = wind_bearing
+        self._wind_speed = wind_speed
+
+    @property
+    def datetime(self) -> datetime:
+        """Valid time"""
+        return self._datetime
 
     @property
     def temperature(self) -> float:
@@ -176,9 +187,19 @@ class WeatherFlowForecastDaily:
         return self._precipitation_probability
 
     @property
-    def datetime(self) -> datetime:
-        """Valid time"""
-        return self._datetime
+    def precipitation(self) -> float:
+        """Precipitation (mm)."""
+        return self._precipitation
+
+    @property
+    def wind_bearing(self) -> float:
+        """Wind bearing (degrees)"""
+        return self._wind_bearing
+
+    @property
+    def wind_speed(self) -> float:
+        """Wind speed (m/s)"""
+        return self._wind_speed
 
 
 class WeatherFlowForecastHourly:
