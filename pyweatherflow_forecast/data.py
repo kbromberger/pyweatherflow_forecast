@@ -111,7 +111,7 @@ class WeatherFlowForecastData:
         return self._datetime
 
     @property
-    def forecast_daily(self):
+    def forecast_daily(self) -> WeatherFlowForecastDaily:
         """Forecast List"""
         return self._forecast_daily
 
@@ -121,7 +121,7 @@ class WeatherFlowForecastData:
         self._forecast_daily = new_forecast
 
     @property
-    def forecast_hourly(self):
+    def forecast_hourly(self) -> WeatherFlowForecastHourly:
         """Forecast List"""
         return self._forecast_hourly
 
