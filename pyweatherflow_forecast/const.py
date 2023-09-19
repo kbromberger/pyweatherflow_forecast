@@ -25,7 +25,7 @@ ICON_LIST = {
     "possibly-snow-night": "snowy",
     "possibly-thunderstorm-day": "lightning-rainy",
     "possibly-thunderstorm-night": "lightning-rainy",
-    "rainy": "pouring",
+    "rainy": "rainy",
     "sleet": "snowy-rainy",
     "snow": "snowy",
     "thunderstorm": "lightning",
