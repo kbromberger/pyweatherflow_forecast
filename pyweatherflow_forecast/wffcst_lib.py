@@ -228,14 +228,14 @@ def validate_data(json_data) -> bool:
         return False
     return True
 
-def _calced_day_values(day_data, hourly_data) -> Dict[str, Any]:
+def _calced_day_values(day_number, hourly_data) -> Dict[str, Any]:
     """Calculate values for day by using hourly data."""
     _precipitation: float = 0
     _wind_speed = []
     _wind_bearing = []
 
     for item in hourly_data:
-        if item.get("local_day") == day_data.get["day_num"]:
+        if item.get("local_day") == day_number:
             _precipitation += item.get("precip", 0)
             _wind_bearing.append(item.get("wind_direction", 0))
             _wind_speed.append(item.get("wind_avg", 0))
@@ -267,7 +267,7 @@ def _get_forecast(api_result: dict) -> List[WeatherFlowForecastData]:
         temperature = item.get("air_temp_high", None)
         temp_low = item.get("air_temp_low", None)
         precipitation_probability = item.get("precip_probability", None)
-        _calc_values = _calced_day_values(item, api_result["forecast"]["hourly"])
+        _calc_values = _calced_day_values(item["day_num"], api_result["forecast"]["hourly"])
         precipitation = _calc_values["precipitation"]
         wind_bearing = _calc_values["wind_bearing"]
         wind_speed = _calc_values["wind_speed"]
