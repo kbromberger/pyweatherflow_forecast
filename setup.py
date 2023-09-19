@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="pyweatherflow_forecast_pkg",
+    name="pyweatherflow-forecast",
     version="0.3.0",
     author="briis",
     author_email="bjarne@briis.com",
