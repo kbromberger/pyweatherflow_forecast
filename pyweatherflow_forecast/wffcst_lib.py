@@ -268,7 +268,8 @@ def _get_forecast(api_result: dict) -> list[WeatherFlowForecastData]:
 
     # Add daily forecast details
     for item in api_result["forecast"]["daily"]:
-        valid_time = datetime.datetime.fromtimestamp(item["day_start_local"])
+        timestamp = item["day_start_local"]
+        valid_time = datetime.datetime.fromtimestamp(timestamp)
         condition = item.get("conditions", "Data Error")
         icon = ICON_LIST.get(item["icon"], "exceptional")
         temperature = item.get("air_temp_high", None)
@@ -281,6 +282,7 @@ def _get_forecast(api_result: dict) -> list[WeatherFlowForecastData]:
 
         forecast = WeatherFlowForecastDaily(
             valid_time,
+            timestamp,
             temperature,
             temp_low,
             condition,
@@ -296,7 +298,8 @@ def _get_forecast(api_result: dict) -> list[WeatherFlowForecastData]:
 
     # Add Hourly Forecast
     for item in api_result["forecast"]["hourly"]:
-        valid_time = datetime.datetime.fromtimestamp(item["time"])
+        timestamp = item["time"]
+        valid_time = datetime.datetime.fromtimestamp(timestamp)
         condition = item.get("conditions", None)
         icon = ICON_LIST.get(item["icon"], "exceptional")
         temperature = item.get("air_temperature", None)
@@ -312,6 +315,7 @@ def _get_forecast(api_result: dict) -> list[WeatherFlowForecastData]:
 
         forecast = WeatherFlowForecastHourly(
             valid_time,
+            timestamp,
             temperature,
             apparent_temperature,
             condition,
@@ -338,7 +342,8 @@ def _get_forecast_current(api_result: dict) -> list[WeatherFlowForecastData]:
 
     item = api_result["current_conditions"]
 
-    valid_time = datetime.datetime.fromtimestamp(item["time"])
+    timestamp = item["time"]
+    valid_time = datetime.datetime.fromtimestamp(timestamp)
     condition = item.get("conditions", None)
     icon = ICON_LIST.get(item["icon"], "exceptional")
     temperature = item.get("air_temperature", None)
@@ -354,6 +359,7 @@ def _get_forecast_current(api_result: dict) -> list[WeatherFlowForecastData]:
 
     current_condition = WeatherFlowForecastData(
         valid_time,
+        timestamp,
         apparent_temperature,
         condition,
         dew_point,

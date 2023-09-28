@@ -10,6 +10,7 @@ class WeatherFlowForecastData:
     def __init__(
         self,
         datetime: datetime,
+        timestamp: int,
         apparent_temperature: float,
         condition: str,
         dew_point: float,
@@ -27,6 +28,7 @@ class WeatherFlowForecastData:
     ) -> None:
         """Dataset constructor."""
         self._datetime = datetime
+        self._timestamp = timestamp
         self._apparent_temperature = apparent_temperature
         self._condition = condition
         self._dew_point = dew_point
@@ -109,6 +111,11 @@ class WeatherFlowForecastData:
         return self._datetime
 
     @property
+    def datetimestamptime(self) -> int:
+        """Timestamp."""
+        return self._timestamp
+
+    @property
     def forecast_daily(self) -> WeatherFlowForecastDaily:
         """Forecast List."""
         return self._forecast_daily
@@ -135,6 +142,7 @@ class WeatherFlowForecastDaily:
     def __init__(
         self,
         datetime: datetime,
+        timestamp: int,
         temperature: float,
         temp_low: float,
         condition: str,
@@ -146,6 +154,7 @@ class WeatherFlowForecastDaily:
     ) -> None:
         """Dataset constructor."""
         self._datetime = datetime
+        self._timestamp = timestamp
         self._temperature = temperature
         self._temp_low = temp_low
         self._condition = condition
@@ -159,6 +168,11 @@ class WeatherFlowForecastDaily:
     def datetime(self) -> datetime:
         """Valid time."""
         return self._datetime
+
+    @property
+    def timestamp(self) -> int:
+        """Timestamp."""
+        return self._timestamp
 
     @property
     def temperature(self) -> float:
@@ -208,6 +222,7 @@ class WeatherFlowForecastHourly:
     def __init__(
         self,
         datetime: datetime,
+        timestamp: int,
         temperature: float,
         apparent_temperature: float,
         condition: str,
@@ -223,6 +238,7 @@ class WeatherFlowForecastHourly:
     ) -> None:
         """Dataset constructor."""
         self._datetime = datetime
+        self._timestamp = timestamp
         self._temperature = temperature
         self._apparent_temperature = apparent_temperature
         self._condition = condition
@@ -300,6 +316,11 @@ class WeatherFlowForecastHourly:
     def datetime(self) -> datetime:
         """Valid time."""
         return self._datetime
+
+    @property
+    def timestamp(self) -> int:
+        """Timestamp."""
+        return self._timestamp
 
 class WeatherFlowStationData:
     """Class to hold station data."""
