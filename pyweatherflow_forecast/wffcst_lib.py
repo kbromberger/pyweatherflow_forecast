@@ -176,6 +176,10 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
                     raise WeatherFlowForecastUnauthorized(
                         "401 UNAUTHORIZED The API token is incorrect or your account status is inactive or disabled."
                     )
+                if response.status == 404:
+                    raise WeatherFlowForecastWongStationId(
+                        f"The Station with ID: {station_id} cannot be found."
+                    )
                 if response.status == 500:
                     raise WeatherFlowForecastInternalServerError(
                         "500 INTERNAL_SERVER_ERROR WeatherFlow servers encounter an unexpected error."
