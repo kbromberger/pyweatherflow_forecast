@@ -141,6 +141,7 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
 
             json_data = json.loads(data)
             fetch_status = json_data["status"]["status_code"]
+            _LOGGER.debug("FETCH STATUS DATA: %s", fetch_status)
             if fetch_status == 3:
                 raise WeatherFlowForecastWongStationId(
                     f"The Station with ID: {station_id} cannot be found."
@@ -185,6 +186,7 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
 
             json_data = json.loads(data)
             fetch_status = json_data["status"]["status_code"]
+            _LOGGER.debug("FETCH STATUS STATION: %s", fetch_status)
             if fetch_status == 3:
                 raise WeatherFlowForecastWongStationId(
                     f"The Station with ID: {station_id} cannot be found."
