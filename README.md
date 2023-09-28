@@ -5,7 +5,6 @@ Python Library to retrieve Forecast data from WeatherFlow.
 Please visit <https://weatherflow.github.io/Tempest/api/swagger/> for more information.
 
 TODO:
-- Add more detailed error messages, to capture most common setup errors
 - Expand documentation, to show usage. In the meatime, for a non Async usage see `test_module.py`
 - Improve documentation
 
