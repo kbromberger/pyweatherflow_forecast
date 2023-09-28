@@ -191,6 +191,7 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
                     f"The Station with ID: {station_id} cannot be found."
                 )
             if fetch_status == 0:
+                _LOGGER.debug("WRONG API: %s", json_data["stations"]["capabilities"])
                 if json_data["stations"]["capabilities"] is None:
                     raise WeatherFlowForecastUnauthorized(
                         "401 UNAUTHORIZED The API token is incorrect or your account status is inactive or disabled."
