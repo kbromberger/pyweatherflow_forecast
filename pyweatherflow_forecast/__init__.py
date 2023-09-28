@@ -5,6 +5,7 @@ from pyweatherflow_forecast.wffcst_lib import (
     WeatherFlowForecastInternalServerError,
     WeatherFlowForecastBadRequest,
     WeatherFlowForecastUnauthorized,
+    WeatherFlowForecastWongStationId,
 )
 from pyweatherflow_forecast.data import (
     WeatherFlowForecastData,

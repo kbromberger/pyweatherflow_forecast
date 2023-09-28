@@ -34,6 +34,10 @@ class WeatherFlowForecastUnauthorized(Exception):
     """Unauthorized API Key."""
 
 
+class WeatherFlowForecastWongStationId(Exception):
+    """Station ID does not exist."""
+
+
 class WeatherFlowForecastInternalServerError(Exception):
     """Servers encounter an unexpected error."""
 
@@ -135,7 +139,13 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
             if is_new_session:
                 await self.session.close()
 
-            return json.loads(data)
+            json_data = json.loads(data)
+            if json_data["status"]["status_code"] == 3:
+                raise WeatherFlowForecastWongStationId(
+                    f"The Station with ID: {station_id} cannot be found."
+                )
+
+            return json_data
 
     async def async_get_station_api(
         self, station_id: int, api_token: str
@@ -168,7 +178,13 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
             if is_new_session:
                 await self.session.close()
 
-            return json.loads(data)
+            json_data = json.loads(data)
+            if json_data["status"]["status_code"] == 3:
+                raise WeatherFlowForecastWongStationId(
+                    f"The Station with ID: {station_id} cannot be found."
+                )
+
+            return json_data
 
 
 class WeatherFlow:
