@@ -1,7 +1,6 @@
-"""
-This module is only used to run some realtime data tests
-while developing the module.
-Create a .env file and add STATION_ID with the id of your station and API_TOKEN with the personal Token
+"""This module is only used to run some realtime data tests while developing the module.
+
+Create a .env file and add STATION_ID with the id of your station and API_TOKEN with the personal Token.
 """
 from __future__ import annotations
 

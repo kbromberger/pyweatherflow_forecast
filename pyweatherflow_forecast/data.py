@@ -1,13 +1,11 @@
-"""Holds the Data Calsses for WeatherFlow Forecast Wrapper"""
+"""Holds the Data Calsses for WeatherFlow Forecast Wrapper."""
 
 from __future__ import annotations
 from datetime import datetime
-from typing import List
-
-from .const import FORECAST_TYPE_DAILY, FORECAST_TYPE_HOURLY
 
 class WeatherFlowForecastData:
     """Class to hold forecast data."""
+
         # pylint: disable=R0913, R0902, R0914
     def __init__(
         self,
@@ -27,7 +25,7 @@ class WeatherFlowForecastData:
         forecast_daily: WeatherFlowForecastDaily = None,
         forecast_hourly: WeatherFlowForecastHourly = None,
     ) -> None:
-        """Constructor"""
+        """Dataset constructor."""
         self._datetime = datetime
         self._apparent_temperature = apparent_temperature
         self._condition = condition
@@ -47,12 +45,12 @@ class WeatherFlowForecastData:
 
     @property
     def temperature(self) -> float:
-        """Air temperature (Celcius)"""
+        """Air temperature (Celcius)."""
         return self._temperature
 
     @property
     def dew_point(self) -> float:
-        """Dew Point (Celcius)"""
+        """Dew Point (Celcius)."""
         return self._dew_point
 
     @property
@@ -82,56 +80,57 @@ class WeatherFlowForecastData:
 
     @property
     def pressure(self) -> float:
-        """Sea Level Pressure (MB)"""
+        """Sea Level Pressure (MB)."""
         return self._pressure
 
     @property
     def wind_bearing(self) -> float:
-        """Wind bearing (degrees)"""
+        """Wind bearing (degrees)."""
         return self._wind_bearing
 
     @property
     def wind_gust_speed(self) -> float:
-        """Wind gust (m/s)"""
+        """Wind gust (m/s)."""
         return self._wind_gust_speed
 
     @property
     def wind_speed(self) -> float:
-        """Wind speed (m/s)"""
+        """Wind speed (m/s)."""
         return self._wind_speed
 
     @property
     def uv_index(self) -> float:
-        """UV Index"""
+        """UV Index."""
         return self._uv_index
 
     @property
     def datetime(self) -> datetime:
-        """Valid time"""
+        """Valid time."""
         return self._datetime
 
     @property
     def forecast_daily(self) -> WeatherFlowForecastDaily:
-        """Forecast List"""
+        """Forecast List."""
         return self._forecast_daily
 
     @forecast_daily.setter
     def forecast_daily(self, new_forecast):
-        """Sets a new Value for forecast daily"""
+        """Forecast daily new value."""
         self._forecast_daily = new_forecast
 
     @property
     def forecast_hourly(self) -> WeatherFlowForecastHourly:
-        """Forecast List"""
+        """Forecast List."""
         return self._forecast_hourly
 
     @forecast_hourly.setter
     def forecast_hourly(self, new_forecast):
-        """Sets a new Value for forecast hourly"""
+        """Forecast hourly new value."""
         self._forecast_hourly = new_forecast
 
 class WeatherFlowForecastDaily:
     """Class to hold daily forecast data."""
+
         # pylint: disable=R0913, R0902, R0914
     def __init__(
         self,
@@ -145,7 +144,7 @@ class WeatherFlowForecastDaily:
         wind_bearing: int,
         wind_speed: float,
     ) -> None:
-        """Constructor"""
+        """Dataset constructor."""
         self._datetime = datetime
         self._temperature = temperature
         self._temp_low = temp_low
@@ -158,17 +157,17 @@ class WeatherFlowForecastDaily:
 
     @property
     def datetime(self) -> datetime:
-        """Valid time"""
+        """Valid time."""
         return self._datetime
 
     @property
     def temperature(self) -> float:
-        """Air temperature (Celcius)"""
+        """Air temperature (Celcius)."""
         return self._temperature
 
     @property
     def temp_low(self) -> float:
-        """Air temperature min during the day (Celcius)"""
+        """Air temperature min during the day (Celcius)."""
         return self._temp_low
 
     @property
@@ -193,17 +192,18 @@ class WeatherFlowForecastDaily:
 
     @property
     def wind_bearing(self) -> float:
-        """Wind bearing (degrees)"""
+        """Wind bearing (degrees)."""
         return self._wind_bearing
 
     @property
     def wind_speed(self) -> float:
-        """Wind speed (m/s)"""
+        """Wind speed (m/s)."""
         return self._wind_speed
 
 
 class WeatherFlowForecastHourly:
     """Class to hold hourly forecast data."""
+
         # pylint: disable=R0913, R0902, R0914
     def __init__(
         self,
@@ -221,7 +221,7 @@ class WeatherFlowForecastHourly:
         wind_speed: int,
         uv_index: float,
     ) -> None:
-        """Constructor"""
+        """Dataset constructor."""
         self._datetime = datetime
         self._temperature = temperature
         self._apparent_temperature = apparent_temperature
@@ -238,7 +238,7 @@ class WeatherFlowForecastHourly:
 
     @property
     def temperature(self) -> float:
-        """Air temperature (Celcius)"""
+        """Air temperature (Celcius)."""
         return self._temperature
 
     @property
@@ -273,36 +273,37 @@ class WeatherFlowForecastHourly:
 
     @property
     def pressure(self) -> float:
-        """Sea Level Pressure (MB)"""
+        """Sea Level Pressure (MB)."""
         return self._pressure
 
     @property
     def wind_bearing(self) -> float:
-        """Wind bearing (degrees)"""
+        """Wind bearing (degrees)."""
         return self._wind_bearing
 
     @property
     def wind_gust_speed(self) -> float:
-        """Wind gust (m/s)"""
+        """Wind gust (m/s)."""
         return self._wind_gust_speed
 
     @property
     def wind_speed(self) -> float:
-        """Wind speed (m/s)"""
+        """Wind speed (m/s)."""
         return self._wind_speed
 
     @property
     def uv_index(self) -> float:
-        """UV Index"""
+        """UV Index."""
         return self._uv_index
 
     @property
     def datetime(self) -> datetime:
-        """Valid time"""
+        """Valid time."""
         return self._datetime
 
 class WeatherFlowStationData:
     """Class to hold station data."""
+
         # pylint: disable=R0913, R0902, R0914
     def __init__(
             self,
@@ -311,7 +312,7 @@ class WeatherFlowStationData:
             longitude: float,
             timezone: str,
     ) -> None:
-        """Constructor."""
+        """Dataset constructor."""
         self._station_name = station_name
         self._latitude = latitude
         self._longitude = longitude
@@ -319,7 +320,7 @@ class WeatherFlowStationData:
 
     @property
     def station_name(self) -> str:
-        """Name of the Station"""
+        """Name of the Station."""
         return self._station_name
 
     @property

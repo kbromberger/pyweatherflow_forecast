@@ -1,7 +1,5 @@
-"""
-This module contains the code to get forecast from
-WeatherFlows Better Forecast API.
-"""
+"""This module contains the code to get forecast from WeatherFlows Better Forecast API."""
+
 from __future__ import annotations
 
 import abc
@@ -9,7 +7,7 @@ import datetime
 import json
 import logging
 
-from typing import List, Any, Dict
+from typing import Any
 from urllib.request import urlopen
 
 import aiohttp
@@ -31,24 +29,21 @@ _LOGGER = logging.getLogger(__name__)
 UTC = datetime.timezone.utc
 
 class WeatherFlowForecastException(Exception):
-    """Exception thrown if failing to access API"""
+    """Exception thrown if failing to access API."""
 
 class WeatherFlowAPIBase:
-    """
-    Baseclass to use as dependency injection pattern for easier
-    automatic testing
-    """
+    """Baseclass to use as dependency injection pattern for easier automatic testing."""
 
     @abc.abstractmethod
-    def get_forecast_api(self, station_id: int, api_token: str) -> Dict[str, Any]:
-        """Override this"""
+    def get_forecast_api(self, station_id: int, api_token: str) -> dict[str, Any]:
+        """Override this."""
         raise NotImplementedError(
             "users must define get_forecast to use this base class"
         )
 
     @abc.abstractmethod
-    def get_station_api(self, station_id: int, api_token: str) -> Dict[str, Any]:
-        """Override this"""
+    def get_station_api(self, station_id: int, api_token: str) -> dict[str, Any]:
+        """Override this."""
         raise NotImplementedError(
             "users must define get_station to use this base class"
         )
@@ -56,8 +51,8 @@ class WeatherFlowAPIBase:
     @abc.abstractmethod
     async def async_get_forecast_api(
         self, station_id: int, api_token: str
-    ) -> Dict[str, Any]:
-        """Override this"""
+    ) -> dict[str, Any]:
+        """Override this."""
         raise NotImplementedError(
             "users must define get_forecast to use this base class"
         )
@@ -65,22 +60,22 @@ class WeatherFlowAPIBase:
     @abc.abstractmethod
     async def async_get_station_api(
         self, station_id: int, api_token: str
-    ) -> Dict[str, Any]:
-        """Override this"""
+    ) -> dict[str, Any]:
+        """Override this."""
         raise NotImplementedError(
             "users must define get_station to use this base class"
         )
 
 
 class WeatherFlowAPI(WeatherFlowAPIBase):
-    """Default implementation for WeatherFlow api"""
+    """Default implementation for WeatherFlow api."""
 
     def __init__(self) -> None:
-        """Init the API with or without session"""
+        """Init the API with or without session."""
         self.session = None
 
-    def get_forecast_api(self, station_id: int, api_token: str) -> Dict[str, Any]:
-        """gets data from API"""
+    def get_forecast_api(self, station_id: int, api_token: str) -> dict[str, Any]:
+        """Return data from API."""
         api_url = f"{WEATHERFLOW_FORECAST_URL}{station_id}&token={api_token}"
 
         response = urlopen(api_url)
@@ -89,8 +84,8 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
 
         return json_data
 
-    def get_station_api(self, station_id: int, api_token: str) -> Dict[str, Any]:
-        """gets data from API"""
+    def get_station_api(self, station_id: int, api_token: str) -> dict[str, Any]:
+        """Return data from API."""
         api_url = f"{WEATHERFLOW_STATION_URL}{station_id}?token={api_token}"
         _LOGGER.debug("URL: %s", api_url)
 
@@ -103,8 +98,8 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
 
     async def async_get_forecast_api(
         self, station_id: int, api_token: str
-    ) -> Dict[str, Any]:
-        """gets data from API asynchronous"""
+    ) -> dict[str, Any]:
+        """Return data from API asynchronous."""
         api_url = f"{WEATHERFLOW_FORECAST_URL}{station_id}&token={api_token}"
 
         is_new_session = False
@@ -127,8 +122,8 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
 
     async def async_get_station_api(
         self, station_id: int, api_token: str
-    ) -> Dict[str, Any]:
-        """gets data from API asynchronous"""
+    ) -> dict[str, Any]:
+        """Return data from API asynchronous."""
         api_url = f"{WEATHERFLOW_STATION_URL}{station_id}?token={api_token}"
 
         is_new_session = False
@@ -151,10 +146,7 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
 
 
 class WeatherFlow:
-    """
-    Class that uses the Better Forecast API from WeatherFlow to retreive
-    forecast data for daily and hourly.
-    """
+    """Class that uses the Better Forecast API from WeatherFlow to retreive forecast data."""
 
     def __init__(
         self,
@@ -163,6 +155,7 @@ class WeatherFlow:
         session: aiohttp.ClientSession = None,
         api: WeatherFlowAPIBase = WeatherFlowAPI(),
     ) -> None:
+        """Return data from WeatherFlow API."""
         self._station_id = station_id
         self._api_token = api_token
         self._api = api
@@ -172,10 +165,8 @@ class WeatherFlow:
             self._api.session = session
 
 
-    def get_forecast(self) -> List[WeatherFlowForecastData]:
-        """
-        Returns a list of forecasts. The first in list are the current one
-        """
+    def get_forecast(self) -> list[WeatherFlowForecastData]:
+        """Return list of forecasts. The first in list are the current one."""
         if self._json_data is None:
             self._json_data = self._api.get_forecast_api(self._station_id, self._api_token)
         elif not validate_data(self._json_data):
@@ -183,18 +174,14 @@ class WeatherFlow:
 
         return _get_forecast(self._json_data)
 
-    def get_station(self) -> List[WeatherFlowStationData]:
-        """
-        Returns a list of station information.
-        """
+    def get_station(self) -> list[WeatherFlowStationData]:
+        """Return list of station information."""
         json_data = self._api.get_station_api(self._station_id, self._api_token)
 
         return _get_station(json_data)
 
-    async def async_get_forecast(self) -> List[WeatherFlowForecastData]:
-        """
-        Returns a list of forecasts. The first in list are the current one
-        """
+    async def async_get_forecast(self) -> list[WeatherFlowForecastData]:
+        """Return list of forecasts. The first in list are the current one."""
         if self._json_data is None:
             self._json_data = await self._api.async_get_forecast_api(
                 self._station_id, self._api_token
@@ -206,17 +193,15 @@ class WeatherFlow:
         return _get_forecast(self._json_data)
 
 
-    async def async_get_station(self) -> List[WeatherFlowStationData]:
-        """
-        Returns a list with Station information.
-        """
+    async def async_get_station(self) -> list[WeatherFlowStationData]:
+        """Return list with Station information."""
         json_data = await self._api.async_get_station_api(
                 self._station_id, self._api_token
             )
         return _get_station(json_data)
 
 def validate_data(json_data) -> bool:
-    """Returns true if data is valid else false."""
+    """Return true if data is valid."""
     data_time = json_data["current_conditions"]["time"]
     data_time_obj = datetime.datetime.fromtimestamp(data_time)
     now = datetime.datetime.now()
@@ -228,7 +213,7 @@ def validate_data(json_data) -> bool:
         return False
     return True
 
-def _calced_day_values(day_number, hourly_data) -> Dict[str, Any]:
+def _calced_day_values(day_number, hourly_data) -> dict[str, Any]:
     """Calculate values for day by using hourly data."""
     _precipitation: float = 0
     _wind_speed = []
@@ -250,8 +235,8 @@ def _calced_day_values(day_number, hourly_data) -> Dict[str, Any]:
     }
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_forecast(api_result: dict) -> List[WeatherFlowForecastData]:
-    """Converts results from API to WeatherFlowForecast list"""
+def _get_forecast(api_result: dict) -> list[WeatherFlowForecastData]:
+    """Return WeatherFlowForecast list from API."""
 
     # Get Current Conditions
     current_conditions: WeatherFlowForecastData = _get_forecast_current(api_result)
@@ -326,8 +311,8 @@ def _get_forecast(api_result: dict) -> List[WeatherFlowForecastData]:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_forecast_current(api_result: dict) -> List[WeatherFlowForecastData]:
-    """Converts results from API to WeatherFlowForecast list"""
+def _get_forecast_current(api_result: dict) -> list[WeatherFlowForecastData]:
+    """Return WeatherFlowForecast list from API."""
 
     item = api_result["current_conditions"]
 
@@ -365,8 +350,8 @@ def _get_forecast_current(api_result: dict) -> List[WeatherFlowForecastData]:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_station(api_result: dict) -> List[WeatherFlowStationData]:
-    """Converts results from API to WeatherFlowForecast list"""
+def _get_station(api_result: dict) -> list[WeatherFlowStationData]:
+    """Return WeatherFlowForecast list from API."""
 
     item = api_result["stations"][0]
 
