@@ -268,7 +268,7 @@ def _get_forecast(api_result: dict) -> list[WeatherFlowForecastData]:
 
     # Add daily forecast details
     for item in api_result["forecast"]["daily"]:
-        valid_time = datetime.datetime.utcfromtimestamp(item["day_start_local"])
+        valid_time = datetime.datetime.fromtimestamp(item["day_start_local"])
         condition = item.get("conditions", "Data Error")
         icon = ICON_LIST.get(item["icon"], "exceptional")
         temperature = item.get("air_temp_high", None)
@@ -296,7 +296,7 @@ def _get_forecast(api_result: dict) -> list[WeatherFlowForecastData]:
 
     # Add Hourly Forecast
     for item in api_result["forecast"]["hourly"]:
-        valid_time = datetime.datetime.utcfromtimestamp(item["time"])
+        valid_time = datetime.datetime.fromtimestamp(item["time"])
         condition = item.get("conditions", None)
         icon = ICON_LIST.get(item["icon"], "exceptional")
         temperature = item.get("air_temperature", None)
@@ -338,7 +338,7 @@ def _get_forecast_current(api_result: dict) -> list[WeatherFlowForecastData]:
 
     item = api_result["current_conditions"]
 
-    valid_time = datetime.datetime.utcfromtimestamp(item["time"])
+    valid_time = datetime.datetime.fromtimestamp(item["time"])
     condition = item.get("conditions", None)
     icon = ICON_LIST.get(item["icon"], "exceptional")
     temperature = item.get("air_temperature", None)
