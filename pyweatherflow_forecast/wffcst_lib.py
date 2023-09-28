@@ -190,16 +190,17 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
 
             json_data = json.loads(data)
             fetch_status = json_data["status"]["status_code"]
-            if fetch_status == 3:
-                raise WeatherFlowForecastWongStationId(
-                    f"The Station with ID: {station_id} cannot be found."
-                )
             if fetch_status == 0:
-                _stations = json_data["stations"][0]["capabilities"]
-                if len(_stations) == 0:
-                    raise WeatherFlowForecastUnauthorized(
-                        "401 UNAUTHORIZED The API token is incorrect or your account status is inactive or disabled."
+                if json_data.get("stations", None) is None:
+                    raise WeatherFlowForecastWongStationId(
+                        f"The Station with ID: {station_id} cannot be found."
                     )
+                else:
+                    _stations = json_data["stations"][0]["capabilities"]
+                    if len(_stations) == 0:
+                        raise WeatherFlowForecastUnauthorized(
+                            "401 UNAUTHORIZED The API token is incorrect or your account status is inactive or disabled."
+                        )
             if fetch_status == 401:
                     raise WeatherFlowForecastUnauthorized(
                         "401 UNAUTHORIZED The API token is incorrect or your account status is inactive or disabled."
