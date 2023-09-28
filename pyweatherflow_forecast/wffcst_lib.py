@@ -13,7 +13,6 @@ from urllib.request import urlopen
 import aiohttp
 
 from .const import (
-    CACHE_MINUTES,
     ICON_LIST,
     WEATHERFLOW_FORECAST_URL,
     WEATHERFLOW_STATION_URL,
@@ -26,10 +25,18 @@ from .data import (
 )
 
 _LOGGER = logging.getLogger(__name__)
-UTC = datetime.timezone.utc
 
-class WeatherFlowForecastException(Exception):
-    """Exception thrown if failing to access API."""
+class WeatherFlowForecastBadRequest(Exception):
+    """Request is invalid."""
+
+
+class WeatherFlowForecastUnauthorized(Exception):
+    """Unauthorized API Key."""
+
+
+class WeatherFlowForecastInternalServerError(Exception):
+    """Servers encounter an unexpected error."""
+
 
 class WeatherFlowAPIBase:
     """Baseclass to use as dependency injection pattern for easier automatic testing."""
@@ -111,9 +118,19 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
             if response.status != 200:
                 if is_new_session:
                     await self.session.close()
-                raise WeatherFlowForecastException(
-                    f"Failed to access weatherFlow API with status code {response.status}"
-                )
+                if response.status == 400:
+                    raise WeatherFlowForecastBadRequest(
+                        "400 BAD_REQUEST Requests is invalid in some way (invalid dates, bad location parameter etc)."
+                    )
+                if response.status == 401:
+                    raise WeatherFlowForecastUnauthorized(
+                        "401 UNAUTHORIZED The API key is incorrect or your account status is inactive or disabled."
+                    )
+                if response.status == 500:
+                    raise WeatherFlowForecastInternalServerError(
+                        "500 INTERNAL_SERVER_ERROR WeatherFlow servers encounter an unexpected error."
+                    )
+
             data = await response.text()
             if is_new_session:
                 await self.session.close()
@@ -135,9 +152,18 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
             if response.status != 200:
                 if is_new_session:
                     await self.session.close()
-                raise WeatherFlowForecastException(
-                    f"Failed to access weatherFlow API with status code {response.status}"
-                )
+                if response.status == 400:
+                    raise WeatherFlowForecastBadRequest(
+                        "400 BAD_REQUEST Requests is invalid in some way (invalid dates, bad location parameter etc)."
+                    )
+                if response.status == 401:
+                    raise WeatherFlowForecastUnauthorized(
+                        "401 UNAUTHORIZED The API key is incorrect or your account status is inactive or disabled."
+                    )
+                if response.status == 500:
+                    raise WeatherFlowForecastInternalServerError(
+                        "500 INTERNAL_SERVER_ERROR WeatherFlow servers encounter an unexpected error."
+                    )
             data = await response.text()
             if is_new_session:
                 await self.session.close()
@@ -167,10 +193,7 @@ class WeatherFlow:
 
     def get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
-        if self._json_data is None:
-            self._json_data = self._api.get_forecast_api(self._station_id, self._api_token)
-        elif not validate_data(self._json_data):
-            self._json_data = self._api.get_forecast_api(self._station_id, self._api_token)
+        self._json_data = self._api.get_forecast_api(self._station_id, self._api_token)
 
         return _get_forecast(self._json_data)
 
@@ -182,14 +205,10 @@ class WeatherFlow:
 
     async def async_get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
-        if self._json_data is None:
-            self._json_data = await self._api.async_get_forecast_api(
-                self._station_id, self._api_token
-            )
-        elif not validate_data(self._json_data):
-            self._json_data = await self._api.async_get_forecast_api(
-                self._station_id, self._api_token
-            )
+        self._json_data = await self._api.async_get_forecast_api(
+            self._station_id, self._api_token
+        )
+
         return _get_forecast(self._json_data)
 
 
@@ -199,19 +218,6 @@ class WeatherFlow:
                 self._station_id, self._api_token
             )
         return _get_station(json_data)
-
-def validate_data(json_data) -> bool:
-    """Return true if data is valid."""
-    data_time = json_data["current_conditions"]["time"]
-    data_time_obj = datetime.datetime.fromtimestamp(data_time)
-    now = datetime.datetime.now()
-
-    delta = now - data_time_obj
-    age_minutes = delta.seconds / 60
-
-    if age_minutes > CACHE_MINUTES:
-        return False
-    return True
 
 def _calced_day_values(day_number, hourly_data) -> dict[str, Any]:
     """Calculate values for day by using hourly data."""
@@ -246,7 +252,7 @@ def _get_forecast(api_result: dict) -> list[WeatherFlowForecastData]:
 
     # Add daily forecast details
     for item in api_result["forecast"]["daily"]:
-        valid_time = datetime.datetime.utcfromtimestamp(item["day_start_local"]).replace(tzinfo=UTC)
+        valid_time = datetime.datetime.utcfromtimestamp(item["day_start_local"])
         condition = item.get("conditions", "Data Error")
         icon = ICON_LIST.get(item["icon"], "exceptional")
         temperature = item.get("air_temp_high", None)
@@ -274,7 +280,7 @@ def _get_forecast(api_result: dict) -> list[WeatherFlowForecastData]:
 
     # Add Hourly Forecast
     for item in api_result["forecast"]["hourly"]:
-        valid_time = datetime.datetime.utcfromtimestamp(item["time"]).replace(tzinfo=UTC)
+        valid_time = datetime.datetime.utcfromtimestamp(item["time"])
         condition = item.get("conditions", None)
         icon = ICON_LIST.get(item["icon"], "exceptional")
         temperature = item.get("air_temperature", None)
@@ -316,7 +322,7 @@ def _get_forecast_current(api_result: dict) -> list[WeatherFlowForecastData]:
 
     item = api_result["current_conditions"]
 
-    valid_time = datetime.datetime.utcfromtimestamp(item["time"]).replace(tzinfo=UTC)
+    valid_time = datetime.datetime.utcfromtimestamp(item["time"])
     condition = item.get("conditions", None)
     icon = ICON_LIST.get(item["icon"], "exceptional")
     temperature = item.get("air_temperature", None)
