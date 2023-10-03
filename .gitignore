@@ -161,4 +161,4 @@ cython_debug/
 stations.json
 stations_wrong.json
 test.py
-.gitignore
+data/
