@@ -10,8 +10,7 @@ import logging
 
 from pyweatherflow_forecast import (
     WeatherFlow,
-    WeatherFlowForecastData,
-    WeatherFlowStationData,
+    WeatherFlowSensorData,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -23,14 +22,18 @@ api_token = os.getenv("API_TOKEN")
 
 weatherflow = WeatherFlow(station_id, api_token)
 
-data: WeatherFlowStationData = weatherflow.get_station()
-print("STATION NAME: ", data.station_name)
+sensor_data: WeatherFlowSensorData = weatherflow.get_sensors()
+print("TEMPERATURE:", sensor_data.air_temperature)
+print("WIND GUST:", sensor_data.wind_gust)
 
-data: WeatherFlowForecastData = weatherflow.get_forecast()
-print("TEMPERATURE: ", data.temperature)
-print("***** DAILY DATA *****")
-for item in data.forecast_daily:
-    print(item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability, item.precipitation, item.wind_bearing, item.wind_speed)
+# data: WeatherFlowStationData = weatherflow.get_station()
+# print("STATION NAME: ", data.station_name)
+
+# data: WeatherFlowForecastData = weatherflow.get_forecast()
+# print("TEMPERATURE: ", data.temperature)
+# print("***** DAILY DATA *****")
+# for item in data.forecast_daily:
+#     print(item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability, item.precipitation, item.wind_bearing, item.wind_speed)
 # print("***** HOURLY DATA *****")
 # for item in data.forecast_hourly:
 #     print(item.datetime, item.temperature, item.apparent_temperature, item.icon, item.condition, item.precipitation, item.precipitation_probability)

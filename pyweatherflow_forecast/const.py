@@ -8,6 +8,7 @@ FORECAST_TYPE_HOURLY = 1
 
 WEATHERFLOW_BASE_URL = "https://swd.weatherflow.com/swd/rest"
 WEATHERFLOW_FORECAST_URL = f"{WEATHERFLOW_BASE_URL}/better_forecast?station_id="
+WEATHERFLOW_SENSOR_URL = f"{WEATHERFLOW_BASE_URL}/observations/station/"
 WEATHERFLOW_STATION_URL = f"{WEATHERFLOW_BASE_URL}/stations/"
 
 ICON_LIST = {
