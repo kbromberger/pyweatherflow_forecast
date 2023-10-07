@@ -581,6 +581,12 @@ class WeatherFlowSensorData:
         return self._wind_avg
 
     @property
+    def wind_cardinal(self) -> str:
+        """Wind Cardinal."""
+        direction_array = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW", "N"]
+        return direction_array[int((self._wind_direction + 11.25) / 22.5)]
+
+    @property
     def wind_chill(self) -> float:
         """Wind chill factor."""
         return self._wind_chill
