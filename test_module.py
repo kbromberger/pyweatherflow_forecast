@@ -26,6 +26,7 @@ sensor_data: WeatherFlowSensorData = weatherflow.get_sensors()
 print("TEMPERATURE:", sensor_data.air_temperature)
 print("APPARENT:", sensor_data.feels_like)
 print("WIND GUST:", sensor_data.wind_gust)
+print("LAST LIGHTNING:", sensor_data.lightning_strike_last_epoch)
 
 # data: WeatherFlowStationData = weatherflow.get_station()
 # print("STATION NAME: ", data.station_name)
