@@ -14,7 +14,7 @@ from pyweatherflow_forecast import (
 )
 
 _LOGGER = logging.getLogger(__name__)
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
 
 load_dotenv()
 station_id = os.getenv("STATION_ID")
@@ -24,6 +24,7 @@ weatherflow = WeatherFlow(station_id, api_token)
 
 sensor_data: WeatherFlowSensorData = weatherflow.get_sensors()
 print("TEMPERATURE:", sensor_data.air_temperature)
+print("APPARENT:", sensor_data.feels_like)
 print("WIND GUST:", sensor_data.wind_gust)
 
 # data: WeatherFlowStationData = weatherflow.get_station()

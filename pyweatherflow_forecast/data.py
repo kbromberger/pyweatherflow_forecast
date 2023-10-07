@@ -468,7 +468,7 @@ class WeatherFlowSensorData:
     @property
     def feels_like(self) -> float:
         """Apparent temperature."""
-        self._feels_like
+        return self._feels_like
 
     @property
     def heat_index(self) -> float:
