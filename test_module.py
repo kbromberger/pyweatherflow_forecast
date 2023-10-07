@@ -27,6 +27,8 @@ print("TEMPERATURE:", sensor_data.air_temperature)
 print("APPARENT:", sensor_data.feels_like)
 print("WIND GUST:", sensor_data.wind_gust)
 print("LAST LIGHTNING:", sensor_data.lightning_strike_last_epoch)
+print("WIND DIRECTION: ", sensor_data.wind_direction)
+print("WIND CARDINAL: ", sensor_data.wind_cardinal)
 
 # data: WeatherFlowStationData = weatherflow.get_station()
 # print("STATION NAME: ", data.station_name)
