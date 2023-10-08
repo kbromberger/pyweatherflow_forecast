@@ -484,6 +484,24 @@ class WeatherFlowSensorData:
         return self._heat_index
 
     @property
+    def is_freezing(self) -> bool:
+        """Return if frost outside."""
+        if self._air_temperature is None:
+            return None
+        if self._air_temperature < 0:
+            return True
+        return False
+
+    @property
+    def is_raining(self) -> bool:
+        """Return if raining."""
+        if self._precip is None:
+            return None
+        if self._precip > 0:
+            return True
+        return False
+
+    @property
     def lightning_strike_count(self) -> int:
         """Ligntning Strike count."""
         return self._lightning_strike_count
