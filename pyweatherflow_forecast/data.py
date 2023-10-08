@@ -444,6 +444,16 @@ class WeatherFlowSensorData:
         self._precip_minutes_local_yesterday_final = precip_minutes_local_yesterday_final
 
     @property
+    def absolute_humidity(self) -> float:
+        """Aboslute Humidity (g.m-3)."""
+        if self._air_temperature is None or self._relative_humidity is None:
+            return None
+
+        kelvin = self._air_temperature * 273.16
+        humidity = self._relative_humidity / 100
+        return (1320.65 / kelvin) * humidity * (10 ** ((7.4475 * (kelvin - 273.14)) / (kelvin - 39.44)))
+
+    @property
     def air_density(self) -> float:
         """Air Density."""
         return self._air_density

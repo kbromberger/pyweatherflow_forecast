@@ -30,6 +30,7 @@ print("LAST LIGHTNING:", sensor_data.lightning_strike_last_epoch)
 print("WIND DIRECTION: ", sensor_data.wind_direction)
 print("WIND CARDINAL: ", sensor_data.wind_cardinal)
 print("PRECIP CHECKED: ", sensor_data.precip_accum_local_day_final)
+print("ABSOLUTE HUMIDITY: ", sensor_data.absolute_humidity)
 
 # data: WeatherFlowStationData = weatherflow.get_station()
 # print("STATION NAME: ", data.station_name)
