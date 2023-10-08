@@ -19,8 +19,9 @@ logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
 station_id = os.getenv("STATION_ID")
 api_token = os.getenv("API_TOKEN")
+elevation = 60
 
-weatherflow = WeatherFlow(station_id, api_token)
+weatherflow = WeatherFlow(station_id=station_id, api_token=api_token, elevation=elevation)
 
 sensor_data: WeatherFlowSensorData = weatherflow.get_sensors()
 print("TEMPERATURE:", sensor_data.air_temperature)
@@ -31,6 +32,7 @@ print("WIND DIRECTION: ", sensor_data.wind_direction)
 print("WIND CARDINAL: ", sensor_data.wind_cardinal)
 print("PRECIP CHECKED: ", sensor_data.precip_accum_local_day_final)
 print("ABSOLUTE HUMIDITY: ", sensor_data.absolute_humidity)
+print("VISIBILITY: ", sensor_data.visibility)
 
 # data: WeatherFlowStationData = weatherflow.get_station()
 # print("STATION NAME: ", data.station_name)

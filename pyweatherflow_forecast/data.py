@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 from datetime import datetime
+import math
 
 class WeatherFlowForecastData:
     """Class to hold forecast data."""
@@ -403,6 +404,7 @@ class WeatherFlowSensorData:
             precip_accum_local_yesterday_final: float,
             precip_minutes_local_day_final: int,
             precip_minutes_local_yesterday_final: int,
+            elevation: float,
     ) -> None:
         """Dataset constructor."""
         self._air_density = air_density
@@ -442,6 +444,7 @@ class WeatherFlowSensorData:
         self._precip_accum_local_yesterday_final = precip_accum_local_yesterday_final
         self._precip_minutes_local_day_final = precip_minutes_local_day_final
         self._precip_minutes_local_yesterday_final = precip_minutes_local_yesterday_final
+        self._elevation = elevation
 
     @property
     def absolute_humidity(self) -> float:
@@ -472,6 +475,14 @@ class WeatherFlowSensorData:
     def brightness(self) -> int:
         """Brightness."""
         return self._brightness
+
+    @property
+    def cloud_base(self) -> float:
+        """Cloud Base (km)."""
+        if self._elevation is None or self._air_temperature is None or self._dew_point is None:
+            return None
+
+        return (self._air_temperature - self._dew_point) * 126 + self._elevation
 
     @property
     def delta_t(self) -> float:
@@ -540,6 +551,13 @@ class WeatherFlowSensorData:
     def precip(self) -> float:
         """Precipitation."""
         return self._precip
+
+    @property
+    def precip_rate(self) -> float:
+        """Precipitation Rate."""
+        if self._precip is None:
+            return None
+        return self._precip * 60
 
     @property
     def precip_accum_last_1hr(self) -> float:
@@ -620,6 +638,27 @@ class WeatherFlowSensorData:
     def uv(self) -> float:
         """UV index."""
         return self._uv
+
+    @property
+    def visibility(self) -> float:
+        """Visibility (km)."""
+        if self._elevation is None or self._air_temperature is None or self._relative_humidity is None or self._dew_point is None:
+            return None
+
+        _elevation_min = float(2)
+        if self._elevation > 2:
+            _elevation_min = self._elevation
+
+        _max_visibility = float(3.56972 * math.sqrt(_elevation_min))
+        _percent_reduction_a = float((1.13 * abs(self._air_temperature - self._dew_point) - 1.15) / 10)
+        if _percent_reduction_a > 1:
+            _percent_reduction = float(1)
+        elif _percent_reduction_a < 0.025:
+            _percent_reduction = float(0.025)
+        else:
+            _percent_reduction = _percent_reduction_a
+
+        return float(_max_visibility * _percent_reduction)
 
     @property
     def wet_bulb_globe_temperature(self) -> float:

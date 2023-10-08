@@ -289,11 +289,13 @@ class WeatherFlow:
         station_id: int,
         api_token: str,
         session: aiohttp.ClientSession = None,
+        elevation = None,
         api: WeatherFlowAPIBase = WeatherFlowAPI(),
     ) -> None:
         """Return data from WeatherFlow API."""
         self._station_id = station_id
         self._api_token = api_token
+        self._elevation = elevation
         self._api = api
         self._json_data = None
 
@@ -317,7 +319,7 @@ class WeatherFlow:
         """Return list of sensor data."""
         self._json_data = self._api.get_sensors_api(self._station_id, self._api_token)
 
-        return _get_sensor_data(self._json_data)
+        return _get_sensor_data(self._json_data, self._elevation)
 
     async def async_get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
@@ -340,7 +342,7 @@ class WeatherFlow:
             self._station_id, self._api_token
         )
 
-        return _get_sensor_data(self._json_data)
+        return _get_sensor_data(self._json_data, self._elevation)
 
 def _calced_day_values(day_number, hourly_data) -> dict[str, Any]:
     """Calculate values for day by using hourly data."""
@@ -448,7 +450,6 @@ def _get_forecast_current(api_result: dict) -> list[WeatherFlowForecastData]:
     """Return WeatherFlowForecast list from API."""
 
     item = api_result["current_conditions"]
-
     timestamp = item["time"]
     valid_time = datetime.datetime.fromtimestamp(timestamp)
     condition = item.get("conditions", None)
@@ -506,8 +507,10 @@ def _get_station(api_result: dict) -> list[WeatherFlowStationData]:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_sensor_data(api_result: dict) -> list[WeatherFlowSensorData]:
+def _get_sensor_data(api_result: dict, elevation: float) -> list[WeatherFlowSensorData]:
     """Return WeatherFlowSensorData list from API."""
+
+    _LOGGER.debug("ELEVATION: %s", elevation)
 
     item = api_result["obs"][0]
 
@@ -587,6 +590,7 @@ def _get_sensor_data(api_result: dict) -> list[WeatherFlowSensorData]:
         precip_accum_local_yesterday_final,
         precip_minutes_local_day_final,
         precip_minutes_local_yesterday_final,
+        elevation,
     )
 
     return sensor_data
