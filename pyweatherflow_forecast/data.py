@@ -399,6 +399,10 @@ class WeatherFlowSensorData:
             wind_direction: int,
             wind_gust: float,
             wind_lull: float,
+            precip_accum_local_day_final: float,
+            precip_accum_local_yesterday_final: float,
+            precip_minutes_local_day_final: int,
+            precip_minutes_local_yesterday_final: int,
     ) -> None:
         """Dataset constructor."""
         self._air_density = air_density
@@ -434,6 +438,10 @@ class WeatherFlowSensorData:
         self._wind_direction = wind_direction
         self._wind_gust = wind_gust
         self._wind_lull = wind_lull
+        self._precip_accum_local_day_final = precip_accum_local_day_final
+        self._precip_accum_local_yesterday_final = precip_accum_local_yesterday_final
+        self._precip_minutes_local_day_final = precip_minutes_local_day_final
+        self._precip_minutes_local_yesterday_final = precip_minutes_local_yesterday_final
 
     @property
     def air_density(self) -> float:
@@ -529,6 +537,26 @@ class WeatherFlowSensorData:
     def precip_minutes_local_yesterday(self) -> int:
         """Precipitation minutes yesterday."""
         return self._precip_minutes_local_yesterday
+
+    @property
+    def precip_accum_local_day_final(self) -> float:
+        """Prepitation current day (Rain Check)."""
+        return self._precip_accum_local_day_final
+
+    @property
+    def precip_accum_local_yesterday_final(self) -> float:
+        """Precipitation yesterday (Rain Check)."""
+        return self._precip_accum_local_yesterday_final
+
+    @property
+    def precip_minutes_local_day_final(self) -> int:
+        """Precipitation minutes today (Rain Check)."""
+        return self._precip_minutes_local_day_final
+
+    @property
+    def precip_minutes_local_yesterday_final(self) -> int:
+        """Precipitation minutes yesterday (Rain Check)."""
+        return self._precip_minutes_local_yesterday_final
 
     @property
     def pressure_trend(self) -> str:

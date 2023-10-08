@@ -544,6 +544,10 @@ def _get_sensor_data(api_result: dict) -> list[WeatherFlowSensorData]:
     wind_direction = item.get("wind_direction", None)
     wind_gust = item.get("wind_gust", None)
     wind_lull = item.get("wind_lull", None)
+    precip_accum_local_day_final = item.get("precip_accum_local_day_final", None)
+    precip_accum_local_yesterday_final = item.get("precip_accum_local_yesterday_final", None)
+    precip_minutes_local_day_final = item.get("precip_minutes_local_day_final", None)
+    precip_minutes_local_yesterday_final = item.get("precip_minutes_local_yesterday_final", None)
 
     sensor_data = WeatherFlowSensorData(
         air_density,
@@ -579,6 +583,10 @@ def _get_sensor_data(api_result: dict) -> list[WeatherFlowSensorData]:
         wind_direction,
         wind_gust,
         wind_lull,
+        precip_accum_local_day_final,
+        precip_accum_local_yesterday_final,
+        precip_minutes_local_day_final,
+        precip_minutes_local_yesterday_final,
     )
 
     return sensor_data
