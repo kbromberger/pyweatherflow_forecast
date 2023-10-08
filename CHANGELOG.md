@@ -1,6 +1,6 @@
 ## Release 0.4.6
 
-**Date**: `Not Released`
+**Date**: `2023-10-08`
 
 ### Changes
 
