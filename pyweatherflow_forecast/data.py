@@ -698,7 +698,7 @@ class WeatherFlowSensorData:
         if _percent_reduction_a > 1:
             _percent_reduction = float(1)
         elif _percent_reduction_a < 0.025:
-            _percent_reduction = float(0.025)
+            _percent_reduction = 0.025
         else:
             _percent_reduction = _percent_reduction_a
 
