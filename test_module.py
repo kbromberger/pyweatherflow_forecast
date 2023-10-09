@@ -33,6 +33,8 @@ print("WIND CARDINAL: ", sensor_data.wind_cardinal)
 print("PRECIP CHECKED: ", sensor_data.precip_accum_local_day_final)
 print("ABSOLUTE HUMIDITY: ", sensor_data.absolute_humidity)
 print("VISIBILITY: ", sensor_data.visibility)
+print("BEAUFORT: ", sensor_data.beaufort)
+print("FREEZING ALT: ", sensor_data.freezing_altitude)
 
 # data: WeatherFlowStationData = weatherflow.get_station()
 # print("STATION NAME: ", data.station_name)

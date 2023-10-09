@@ -1,9 +1,9 @@
-## Release 0.4.6
+## Release 0.4.7
 
-**Date**: `2023-10-08`
+**Date**: `2023-10-09`
 
 ### Changes
 
-- Added `visibility` sensor
-- Added `cloud_base` sensor
-- Fixed precipitation rate now showing correct value
+- Fix wrong value in Absolute Humidity
+- Added Beaufort sensor
+- Added Freezing Altitude sensor

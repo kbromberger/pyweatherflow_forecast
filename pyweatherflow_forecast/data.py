@@ -472,6 +472,41 @@ class WeatherFlowSensorData:
         return self._barometric_pressure
 
     @property
+    def beaufort(self) -> int:
+        """Beaufort Value."""
+        if self._wind_avg is None:
+            return None
+
+        if self._wind_avg > 32.7:
+            _beaufort = 12
+        elif self._wind_avg >= 28.5:
+            _beaufort = 11
+        elif self._wind_avg >= 24.5:
+            _beaufort = 10
+        elif self._wind_avg >= 20.8:
+            _beaufort = 9
+        elif self._wind_avg >= 17.2:
+            _beaufort = 8
+        elif self._wind_avg >= 13.9:
+            _beaufort = 7
+        elif self._wind_avg >= 10.8:
+            _beaufort = 6
+        elif self._wind_avg >= 8.0:
+            _beaufort = 5
+        elif self._wind_avg >= 5.5:
+            _beaufort = 4
+        elif self._wind_avg >= 3.4:
+            _beaufort = 3
+        elif self._wind_avg >= 1.6:
+            _beaufort = 2
+        elif self._wind_avg >= 0.3:
+            _beaufort = 1
+        else:
+            _beaufort = 0
+
+        return _beaufort
+
+    @property
     def brightness(self) -> int:
         """Brightness."""
         return self._brightness
@@ -498,6 +533,15 @@ class WeatherFlowSensorData:
     def feels_like(self) -> float:
         """Apparent temperature."""
         return self._feels_like
+
+    @property
+    def freezing_altitude(self) -> float:
+        """Freezing Altitude."""
+        if self._elevation is None or self._air_temperature is None:
+            return None
+
+        _freezing_line = (192 * self._air_temperature) + self._elevation
+        return 0 if _freezing_line < 0 else _freezing_line
 
     @property
     def heat_index(self) -> float:
