@@ -333,12 +333,14 @@ class WeatherFlowStationData:
             latitude: float,
             longitude: float,
             timezone: str,
+            device_id: int,
     ) -> None:
         """Dataset constructor."""
         self._station_name = station_name
         self._latitude = latitude
         self._longitude = longitude
         self._timezone = timezone
+        self._device_id = device_id
 
     @property
     def station_name(self) -> str:
@@ -360,6 +362,10 @@ class WeatherFlowStationData:
         """Timezone of station."""
         return self._timezone
 
+    @property
+    def device_id(self) -> int:
+        """Device ID."""
+        return self._device_id
 
 class WeatherFlowSensorData:
     """Class to hold sensor data."""

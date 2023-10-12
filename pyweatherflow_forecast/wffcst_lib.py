@@ -495,12 +495,18 @@ def _get_station(api_result: dict) -> list[WeatherFlowStationData]:
     latitude = item.get("latitude", None)
     longitude = item.get("longitude", None)
     timezone = item.get("timezone", None)
+    device_id = None
+    for device in item["devices"]:
+        if device.get("device_type", None) == "ST":
+            device_id = device.get("device_id", None)
+            break
 
     station_data = WeatherFlowStationData(
         station_name,
         latitude,
         longitude,
-        timezone
+        timezone,
+        device_id,
     )
 
     return station_data

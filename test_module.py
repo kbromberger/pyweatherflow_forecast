@@ -11,6 +11,7 @@ import logging
 from pyweatherflow_forecast import (
     WeatherFlow,
     WeatherFlowSensorData,
+    WeatherFlowStationData,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -23,18 +24,22 @@ elevation = 60
 
 weatherflow = WeatherFlow(station_id=station_id, api_token=api_token, elevation=elevation)
 
-sensor_data: WeatherFlowSensorData = weatherflow.get_sensors()
-print("TEMPERATURE:", sensor_data.air_temperature)
-print("APPARENT:", sensor_data.feels_like)
-print("WIND GUST:", sensor_data.wind_gust)
-print("LAST LIGHTNING:", sensor_data.lightning_strike_last_epoch)
-print("WIND DIRECTION: ", sensor_data.wind_direction)
-print("WIND CARDINAL: ", sensor_data.wind_cardinal)
-print("PRECIP CHECKED: ", sensor_data.precip_accum_local_day_final)
-print("ABSOLUTE HUMIDITY: ", sensor_data.absolute_humidity)
-print("VISIBILITY: ", sensor_data.visibility)
-print("BEAUFORT: ", sensor_data.beaufort)
-print("FREEZING ALT: ", sensor_data.freezing_altitude)
+station_data: WeatherFlowStationData = weatherflow.get_station()
+print("STATION NAME: ", station_data.station_name)
+print("DEVICE ID: ", station_data.device_id)
+
+# sensor_data: WeatherFlowSensorData = weatherflow.get_sensors()
+# print("TEMPERATURE:", sensor_data.air_temperature)
+# print("APPARENT:", sensor_data.feels_like)
+# print("WIND GUST:", sensor_data.wind_gust)
+# print("LAST LIGHTNING:", sensor_data.lightning_strike_last_epoch)
+# print("WIND DIRECTION: ", sensor_data.wind_direction)
+# print("WIND CARDINAL: ", sensor_data.wind_cardinal)
+# print("PRECIP CHECKED: ", sensor_data.precip_accum_local_day_final)
+# print("ABSOLUTE HUMIDITY: ", sensor_data.absolute_humidity)
+# print("VISIBILITY: ", sensor_data.visibility)
+# print("BEAUFORT: ", sensor_data.beaufort)
+# print("FREEZING ALT: ", sensor_data.freezing_altitude)
 
 # data: WeatherFlowStationData = weatherflow.get_station()
 # print("STATION NAME: ", data.station_name)
