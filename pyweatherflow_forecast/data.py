@@ -334,6 +334,8 @@ class WeatherFlowStationData:
             longitude: float,
             timezone: str,
             device_id: int,
+            firmware_revision: str,
+            serial_number: str,
     ) -> None:
         """Dataset constructor."""
         self._station_name = station_name
@@ -341,6 +343,8 @@ class WeatherFlowStationData:
         self._longitude = longitude
         self._timezone = timezone
         self._device_id = device_id
+        self._firmware_revision = firmware_revision
+        self._serial_number = serial_number
 
     @property
     def station_name(self) -> str:
@@ -366,6 +370,16 @@ class WeatherFlowStationData:
     def device_id(self) -> int:
         """Device ID."""
         return self._device_id
+
+    @property
+    def firmware_revision(self) -> str:
+        """Firmware Version."""
+        return self._firmware_revision
+
+    @property
+    def serial_number(self) -> str:
+        """Device Serial Number."""
+        return self._serial_number
 
 class WeatherFlowSensorData:
     """Class to hold sensor data."""

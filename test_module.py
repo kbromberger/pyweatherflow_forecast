@@ -27,6 +27,8 @@ weatherflow = WeatherFlow(station_id=station_id, api_token=api_token, elevation=
 station_data: WeatherFlowStationData = weatherflow.get_station()
 print("STATION NAME: ", station_data.station_name)
 print("DEVICE ID: ", station_data.device_id)
+print("FIRMWARE: ", station_data.firmware_revision)
+print("SERIAL: ", station_data.serial_number)
 
 # sensor_data: WeatherFlowSensorData = weatherflow.get_sensors()
 # print("TEMPERATURE:", sensor_data.air_temperature)
