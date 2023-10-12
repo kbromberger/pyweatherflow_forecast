@@ -494,6 +494,21 @@ class WeatherFlowSensorData:
         return self._barometric_pressure
 
     @property
+    def battery(self) -> int:
+        """Battery (%)."""
+        if self._voltage is None:
+            return None
+
+        if self._voltage > 2.80:
+            _percent = 100
+        elif self._voltage < 1.80:
+            _percent = 0
+        else:
+            _percent = (self._voltage - 1.8) * 100
+
+        return _percent
+
+    @property
     def beaufort(self) -> int:
         """Beaufort Value."""
         if self._wind_avg is None:

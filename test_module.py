@@ -24,11 +24,11 @@ elevation = 60
 
 weatherflow = WeatherFlow(station_id=station_id, api_token=api_token, elevation=elevation)
 
-station_data: WeatherFlowStationData = weatherflow.get_station()
-print("STATION NAME: ", station_data.station_name)
-print("DEVICE ID: ", station_data.device_id)
-print("FIRMWARE: ", station_data.firmware_revision)
-print("SERIAL: ", station_data.serial_number)
+# station_data: WeatherFlowStationData = weatherflow.get_station()
+# print("STATION NAME: ", station_data.station_name)
+# print("DEVICE ID: ", station_data.device_id)
+# print("FIRMWARE: ", station_data.firmware_revision)
+# print("SERIAL: ", station_data.serial_number)
 
 sensor_data: WeatherFlowSensorData = weatherflow.get_sensors()
 print("TEMPERATURE:", sensor_data.air_temperature)
@@ -43,6 +43,7 @@ print("VISIBILITY: ", sensor_data.visibility)
 print("BEAUFORT: ", sensor_data.beaufort)
 print("FREEZING ALT: ", sensor_data.freezing_altitude)
 print("VOLTAGE: ", sensor_data.voltage)
+print("BATTERY: ", sensor_data.battery)
 
 # data: WeatherFlowStationData = weatherflow.get_station()
 # print("STATION NAME: ", data.station_name)
