@@ -413,6 +413,7 @@ class WeatherFlowSensorData:
             station_pressure: float,
             timestamp: int,
             uv: float,
+            voltage: float,
             wet_bulb_globe_temperature: float,
             wet_bulb_temperature: float,
             wind_avg: float,
@@ -453,6 +454,7 @@ class WeatherFlowSensorData:
         self._station_pressure = station_pressure
         self._timestamp = timestamp
         self._uv = uv
+        self._voltage = voltage
         self._wet_bulb_globe_temperature = wet_bulb_globe_temperature
         self._wet_bulb_temperature = wet_bulb_temperature
         self._wind_avg = wind_avg
@@ -702,6 +704,11 @@ class WeatherFlowSensorData:
     def uv(self) -> float:
         """UV index."""
         return self._uv
+
+    @property
+    def voltage(self) -> float:
+        """Voltage (Tempest device)."""
+        return self._voltage
 
     @property
     def visibility(self) -> float:

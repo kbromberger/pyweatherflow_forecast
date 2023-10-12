@@ -14,6 +14,7 @@ import aiohttp
 
 from .const import (
     ICON_LIST,
+    WEATHERFLOW_DEVICE_URL,
     WEATHERFLOW_FORECAST_URL,
     WEATHERFLOW_SENSOR_URL,
     WEATHERFLOW_STATION_URL,
@@ -36,6 +37,10 @@ class WeatherFlowForecastUnauthorized(Exception):
     """Unauthorized API Key."""
 
 
+class WeatherFlowForecastDeviceNotFound(Exception):
+    """Device ID does not exist."""
+
+
 class WeatherFlowForecastWongStationId(Exception):
     """Station ID does not exist."""
 
@@ -46,6 +51,13 @@ class WeatherFlowForecastInternalServerError(Exception):
 
 class WeatherFlowAPIBase:
     """Baseclass to use as dependency injection pattern for easier automatic testing."""
+
+    @abc.abstractmethod
+    def get_device_api(self, device_id: int, api_token: str) -> dict[str, Any]:
+        """Override this."""
+        raise NotImplementedError(
+            "users must define get_forecast to use this base class"
+        )
 
     @abc.abstractmethod
     def get_forecast_api(self, station_id: int, api_token: str) -> dict[str, Any]:
@@ -66,6 +78,15 @@ class WeatherFlowAPIBase:
         """Override this."""
         raise NotImplementedError(
             "users must define get_sensors to use this base class"
+        )
+
+    @abc.abstractmethod
+    async def async_get_device_api(
+        self, device_id: int, api_token: str
+    ) -> dict[str, Any]:
+        """Override this."""
+        raise NotImplementedError(
+            "users must define get_forecast to use this base class"
         )
 
     @abc.abstractmethod
@@ -102,6 +123,16 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
     def __init__(self) -> None:
         """Init the API with or without session."""
         self.session = None
+
+    def get_device_api(self, device_id: int, api_token: str) -> dict[str, Any]:
+        """Return data from API."""
+        api_url = f"{WEATHERFLOW_DEVICE_URL}{device_id}?token={api_token}"
+
+        response = urlopen(api_url)
+        data = response.read().decode("utf-8")
+        json_data = json.loads(data)
+
+        return json_data
 
     def get_forecast_api(self, station_id: int, api_token: str) -> dict[str, Any]:
         """Return data from API."""
@@ -178,6 +209,46 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
                     raise WeatherFlowForecastUnauthorized(
                         "401 UNAUTHORIZED The API token is incorrect or your account status is inactive or disabled."
                     )
+
+            return json_data
+
+    async def async_get_device_api(
+        self, device_id: int, api_token: str
+    ) -> dict[str, Any]:
+        """Return data from API asynchronous."""
+        api_url = f"{WEATHERFLOW_DEVICE_URL}{device_id}?token={api_token}"
+
+        is_new_session = False
+        if self.session is None:
+            self.session = aiohttp.ClientSession()
+            is_new_session = True
+
+        async with self.session.get(api_url) as response:
+            if response.status != 200:
+                if is_new_session:
+                    await self.session.close()
+                if response.status == 400:
+                    raise WeatherFlowForecastBadRequest(
+                        "400 BAD_REQUEST Requests is invalid in some way (invalid dates, bad location parameter etc)."
+                    )
+                if response.status == 401:
+                    raise WeatherFlowForecastUnauthorized(
+                        "401 UNAUTHORIZED The API key is incorrect or your account status is inactive or disabled."
+                    )
+                if response.status == 404:
+                    raise WeatherFlowForecastDeviceNotFound(
+                        f"404 NOT FOUND The Device with id {device_id} is not found on this station."
+                    )
+                if response.status == 500:
+                    raise WeatherFlowForecastInternalServerError(
+                        "500 INTERNAL_SERVER_ERROR WeatherFlow servers encounter an unexpected error."
+                    )
+
+            data = await response.text()
+            if is_new_session:
+                await self.session.close()
+
+            json_data = json.loads(data)
 
             return json_data
 
@@ -299,6 +370,7 @@ class WeatherFlow:
         self._api = api
         self._json_data = None
         self._station_data: WeatherFlowStationData = None
+        self._voltage: float = None
 
         if session:
             self._api.session = session
@@ -309,6 +381,13 @@ class WeatherFlow:
         if self._station_data is None:
             self._station_data = self.get_station()
         return self._station_data
+
+    def get_device_info(self) -> float:
+        """Return device info. Currently only Voltage."""
+        device_id = self.station_data.device_id
+        json_data = self._api.get_device_api(device_id, self._api_token)
+
+        return json_data["obs"][0][16]
 
     def get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
@@ -324,9 +403,19 @@ class WeatherFlow:
 
     def get_sensors(self) -> list[WeatherFlowSensorData]:
         """Return list of sensor data."""
+        voltage: float = self.get_device_info()
         self._json_data = self._api.get_sensors_api(self._station_id, self._api_token)
 
-        return _get_sensor_data(self._json_data, self._elevation, self.station_data)
+        return _get_sensor_data(self._json_data, self._elevation, self.station_data, voltage)
+
+    async def async_get_device_info(self) -> float:
+        """Return device info. Currently only Voltage."""
+        device_id = self.station_data.device_id
+        self._json_data = await self._api.async_get_device_api(
+            device_id, self._api_token
+        )
+
+        return self._json_data["obs"][0][16]
 
     async def async_get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
@@ -345,11 +434,12 @@ class WeatherFlow:
 
     async def async_get_sensors(self) -> list[WeatherFlowSensorData]:
         """Return list of sensor data."""
+        voltage: float = await self.async_get_device_info()
         self._json_data = await self._api.async_get_sensors_api(
             self._station_id, self._api_token
         )
 
-        return _get_sensor_data(self._json_data, self._elevation, self.station_data)
+        return _get_sensor_data(self._json_data, self._elevation, self.station_data, voltage)
 
 def _calced_day_values(day_number, hourly_data) -> dict[str, Any]:
     """Calculate values for day by using hourly data."""
@@ -526,7 +616,7 @@ def _get_station(api_result: dict) -> list[WeatherFlowStationData]:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_sensor_data(api_result: dict, elevation: float, station_data: WeatherFlowStationData) -> list[WeatherFlowSensorData]:
+def _get_sensor_data(api_result: dict, elevation: float, station_data: WeatherFlowStationData, voltage: float) -> list[WeatherFlowSensorData]:
     """Return WeatherFlowSensorData list from API."""
 
     _LOGGER.debug("ELEVATION: %s", elevation)
@@ -560,6 +650,7 @@ def _get_sensor_data(api_result: dict, elevation: float, station_data: WeatherFl
     station_pressure = item.get("station_pressure", None)
     timestamp = item.get("timestamp", None)
     uv = item.get("uv", None)
+    voltage = voltage
     wet_bulb_globe_temperature = item.get("wet_bulb_globe_temperature", None)
     wet_bulb_temperature = item.get("wet_bulb_temperature", None)
     wind_avg = item.get("wind_avg", None)
@@ -599,6 +690,7 @@ def _get_sensor_data(api_result: dict, elevation: float, station_data: WeatherFl
         station_pressure,
         timestamp,
         uv,
+        voltage,
         wet_bulb_globe_temperature,
         wet_bulb_temperature,
         wind_avg,
@@ -614,3 +706,9 @@ def _get_sensor_data(api_result: dict, elevation: float, station_data: WeatherFl
     )
 
     return sensor_data
+
+# pylint: disable=R0914, R0912, W0212, R0915
+def _get_device_data(api_result: dict) -> float:
+    """Return WeatherFlow Device Voltage from API."""
+
+    return api_result["obs"][0][16]
