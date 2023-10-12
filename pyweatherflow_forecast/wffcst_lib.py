@@ -298,10 +298,17 @@ class WeatherFlow:
         self._elevation = elevation
         self._api = api
         self._json_data = None
+        self._station_data: WeatherFlowStationData = None
 
         if session:
             self._api.session = session
 
+    @property
+    def station_data(self) -> WeatherFlowStationData:
+        """Return List of Station Data"""
+        if self._station_data is None:
+            self._station_data = self.get_station()
+        return self._station_data
 
     def get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
@@ -319,7 +326,7 @@ class WeatherFlow:
         """Return list of sensor data."""
         self._json_data = self._api.get_sensors_api(self._station_id, self._api_token)
 
-        return _get_sensor_data(self._json_data, self._elevation)
+        return _get_sensor_data(self._json_data, self._elevation, self.station_data)
 
     async def async_get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
@@ -342,7 +349,7 @@ class WeatherFlow:
             self._station_id, self._api_token
         )
 
-        return _get_sensor_data(self._json_data, self._elevation)
+        return _get_sensor_data(self._json_data, self._elevation, self.station_data)
 
 def _calced_day_values(day_number, hourly_data) -> dict[str, Any]:
     """Calculate values for day by using hourly data."""
@@ -519,10 +526,11 @@ def _get_station(api_result: dict) -> list[WeatherFlowStationData]:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_sensor_data(api_result: dict, elevation: float) -> list[WeatherFlowSensorData]:
+def _get_sensor_data(api_result: dict, elevation: float, station_data: WeatherFlowStationData) -> list[WeatherFlowSensorData]:
     """Return WeatherFlowSensorData list from API."""
 
     _LOGGER.debug("ELEVATION: %s", elevation)
+    _LOGGER.debug("DEVICE ID: %s", station_data.device_id)
 
     item = api_result["obs"][0]
 
