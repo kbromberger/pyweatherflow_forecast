@@ -412,11 +412,11 @@ class WeatherFlow:
         self._station_data = station_data
         return station_data
 
-    def get_sensors(self) -> list[WeatherFlowSensorData]:
+    def get_sensors(self, voltage: float = None) -> list[WeatherFlowSensorData]:
         """Return list of sensor data."""
         self._json_data = self._api.get_sensors_api(self._station_id, self._api_token)
 
-        return _get_sensor_data(self._json_data, self._elevation)
+        return _get_sensor_data(self._json_data, self._elevation, voltage)
 
     async def async_get_device(self, device_id: int) -> list[WeatherFlowDeviceData]:
         """Return device info. Currently only Voltage."""
@@ -447,10 +447,10 @@ class WeatherFlow:
         self._station_data = station_data
         return station_data
 
-    async def async_get_sensors(self) -> list[WeatherFlowSensorData]:
+    async def async_get_sensors(self, voltage: float = None) -> list[WeatherFlowSensorData]:
         """Return list of sensor data."""
         self._json_data = await self._api.async_get_sensors_api(
-            self._station_id, self._api_token
+            self._station_id, self._api_token, voltage
         )
 
         return _get_sensor_data(self._json_data, self._elevation)
@@ -630,7 +630,7 @@ def _get_station(api_result: dict) -> list[WeatherFlowStationData]:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_sensor_data(api_result: dict, elevation: float) -> list[WeatherFlowSensorData]:
+def _get_sensor_data(api_result: dict, elevation: float, voltage: float) -> list[WeatherFlowSensorData]:
     """Return WeatherFlowSensorData list from API."""
 
     _LOGGER.debug("ELEVATION: %s", elevation)
@@ -702,6 +702,7 @@ def _get_sensor_data(api_result: dict, elevation: float) -> list[WeatherFlowSens
         station_pressure,
         timestamp,
         uv,
+        voltage,
         wet_bulb_globe_temperature,
         wet_bulb_temperature,
         wind_avg,
