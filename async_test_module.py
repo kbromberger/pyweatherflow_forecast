@@ -40,7 +40,7 @@ async def main() -> None:
         print(err)
 
     try:
-        device_data: WeatherFlowDeviceData = await weatherflow.async_get_device_info()
+        device_data: WeatherFlowDeviceData = await weatherflow.async_get_device(station_data.device_id)
         print("DEVICE ID: ", device_data.device_id)
         print("VOLTAGE: ", device_data.voltage)
 

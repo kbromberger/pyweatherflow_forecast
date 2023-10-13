@@ -219,9 +219,9 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
     ) -> dict[str, Any]:
         """Return data from API asynchronous."""
         api_url = f"{WEATHERFLOW_DEVICE_URL}{device_id}?token={api_token}"
-        _LOGGER.debug("URL: %s", api_url)
 
         is_new_session = False
+        self.session = None
         if self.session is None:
             self.session = aiohttp.ClientSession()
             is_new_session = True
@@ -236,24 +236,35 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
                     )
                 if response.status == 401:
                     raise WeatherFlowForecastUnauthorized(
-                        "401 UNAUTHORIZED The API key is incorrect or your account status is inactive or disabled."
+                        "401 UNAUTHORIZED The API token is incorrect or your account status is inactive or disabled."
                     )
                 if response.status == 404:
-                    raise WeatherFlowForecastDeviceNotFound(
-                        f"404 NOT FOUND The Device with id {device_id} is not found on this station."
+                    raise WeatherFlowForecastWongStationId(
+                        f"The Device with ID: {device_id}, cannot be found."
                     )
                 if response.status == 500:
                     raise WeatherFlowForecastInternalServerError(
                         "500 INTERNAL_SERVER_ERROR WeatherFlow servers encounter an unexpected error."
                     )
-
             data = await response.text()
             if is_new_session:
                 await self.session.close()
 
             json_data = json.loads(data)
 
+            fetch_status = json_data["status"]["status_code"]
+            if fetch_status == 404:
+                if json_data.get("stations", None) is None:
+                    raise WeatherFlowForecastWongStationId(
+                        f"The Device with ID: {device_id}, cannot be found."
+                    )
+
+            if fetch_status == 401:
+                    raise WeatherFlowForecastUnauthorized(
+                        "401 UNAUTHORIZED The API token is incorrect or your account status is inactive or disabled."
+                    )
             return json_data
+
 
     async def async_get_station_api(
         self, station_id: int, api_token: str
@@ -379,12 +390,13 @@ class WeatherFlow:
         if session:
             self._api.session = session
 
-    def get_device_info(self) -> list[WeatherFlowDeviceData]:
+    def get_device(self, device_id: int) -> list[WeatherFlowDeviceData]:
         """Return device info. Currently only Voltage."""
-        device_id = self._station_data.device_id
-        json_data = self._api.get_device_api(device_id, self._api_token)
+        _device_id = device_id
+        json_data = self._api.get_device_api(_device_id, self._api_token)
 
-        return _get_device_data(json_data)
+        self._device_data = _get_device_data(json_data)
+        return self._device_data
 
     def get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
@@ -402,20 +414,21 @@ class WeatherFlow:
 
     def get_sensors(self) -> list[WeatherFlowSensorData]:
         """Return list of sensor data."""
-        voltage: float = self.get_device_info()
         self._json_data = self._api.get_sensors_api(self._station_id, self._api_token)
 
-        return _get_sensor_data(self._json_data, self._elevation, voltage)
+        return _get_sensor_data(self._json_data, self._elevation)
 
-    async def async_get_device_info(self) -> list[WeatherFlowDeviceData]:
+    async def async_get_device(self, device_id: int) -> list[WeatherFlowDeviceData]:
         """Return device info. Currently only Voltage."""
-        device_id = self._station_data.device_id
-        _LOGGER.debug("DEVICE ID, DATA: %s",device_id)
-        self._json_data = await self._api.async_get_device_api(
-            device_id, self._api_token
+        _device_id = device_id
+        _LOGGER.debug("DEVICE ID: %s", _device_id)
+
+        json_data = await self._api.async_get_device_api(
+            _device_id, self._api_token
         )
 
-        return _get_device_data(self._json_data)
+        self._device_data = _get_device_data(json_data, _device_id)
+        return self._device_data
 
     async def async_get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
@@ -436,12 +449,11 @@ class WeatherFlow:
 
     async def async_get_sensors(self) -> list[WeatherFlowSensorData]:
         """Return list of sensor data."""
-        voltage: float = await self.async_get_device_info()
         self._json_data = await self._api.async_get_sensors_api(
             self._station_id, self._api_token
         )
 
-        return _get_sensor_data(self._json_data, self._elevation, voltage)
+        return _get_sensor_data(self._json_data, self._elevation)
 
 def _calced_day_values(day_number, hourly_data) -> dict[str, Any]:
     """Calculate values for day by using hourly data."""
@@ -618,7 +630,7 @@ def _get_station(api_result: dict) -> list[WeatherFlowStationData]:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_sensor_data(api_result: dict, elevation: float, voltage: float) -> list[WeatherFlowSensorData]:
+def _get_sensor_data(api_result: dict, elevation: float) -> list[WeatherFlowSensorData]:
     """Return WeatherFlowSensorData list from API."""
 
     _LOGGER.debug("ELEVATION: %s", elevation)
@@ -651,7 +663,6 @@ def _get_sensor_data(api_result: dict, elevation: float, voltage: float) -> list
     station_pressure = item.get("station_pressure", None)
     timestamp = item.get("timestamp", None)
     uv = item.get("uv", None)
-    voltage = voltage
     wet_bulb_globe_temperature = item.get("wet_bulb_globe_temperature", None)
     wet_bulb_temperature = item.get("wet_bulb_temperature", None)
     wind_avg = item.get("wind_avg", None)
@@ -691,7 +702,6 @@ def _get_sensor_data(api_result: dict, elevation: float, voltage: float) -> list
         station_pressure,
         timestamp,
         uv,
-        voltage,
         wet_bulb_globe_temperature,
         wet_bulb_temperature,
         wind_avg,

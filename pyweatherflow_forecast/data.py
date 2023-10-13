@@ -347,6 +347,21 @@ class WeatherFlowDeviceData:
         """Return voltage of device."""
         return self._voltage
 
+    @property
+    def battery(self) -> int:
+        """Battery (%)."""
+        if self._voltage is None:
+            return None
+
+        if self._voltage > 2.80:
+            _percent = 100
+        elif self._voltage < 1.80:
+            _percent = 0
+        else:
+            _percent = (self._voltage - 1.8) * 100
+
+        return _percent
+
 class WeatherFlowStationData:
     """Class to hold station data."""
 
@@ -437,7 +452,6 @@ class WeatherFlowSensorData:
             station_pressure: float,
             timestamp: int,
             uv: float,
-            voltage: float,
             wet_bulb_globe_temperature: float,
             wet_bulb_temperature: float,
             wind_avg: float,
@@ -478,7 +492,6 @@ class WeatherFlowSensorData:
         self._station_pressure = station_pressure
         self._timestamp = timestamp
         self._uv = uv
-        self._voltage = voltage
         self._wet_bulb_globe_temperature = wet_bulb_globe_temperature
         self._wet_bulb_temperature = wet_bulb_temperature
         self._wind_avg = wind_avg
@@ -516,21 +529,6 @@ class WeatherFlowSensorData:
     def barometric_pressure(self) -> float:
         """Barometric Pressure."""
         return self._barometric_pressure
-
-    @property
-    def battery(self) -> int:
-        """Battery (%)."""
-        if self._voltage is None:
-            return None
-
-        if self._voltage > 2.80:
-            _percent = 100
-        elif self._voltage < 1.80:
-            _percent = 0
-        else:
-            _percent = (self._voltage - 1.8) * 100
-
-        return _percent
 
     @property
     def beaufort(self) -> int:
@@ -743,11 +741,6 @@ class WeatherFlowSensorData:
     def uv(self) -> float:
         """UV index."""
         return self._uv
-
-    @property
-    def voltage(self) -> float:
-        """Voltage (Tempest device)."""
-        return self._voltage
 
     @property
     def visibility(self) -> float:
