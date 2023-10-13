@@ -127,6 +127,9 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
 
     def get_device_api(self, device_id: int, api_token: str) -> dict[str, Any]:
         """Return data from API."""
+        if device_id is None:
+            return None
+
         api_url = f"{WEATHERFLOW_DEVICE_URL}{device_id}?token={api_token}"
         _LOGGER.debug("URL: %s", api_url)
 
@@ -218,6 +221,9 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
         self, device_id: int, api_token: str
     ) -> dict[str, Any]:
         """Return data from API asynchronous."""
+        if device_id is None:
+            return None
+
         api_url = f"{WEATHERFLOW_DEVICE_URL}{device_id}?token={api_token}"
 
         is_new_session = False
@@ -723,7 +729,7 @@ def _get_sensor_data(api_result: dict, elevation: float, voltage: float) -> list
 def _get_device_data(api_result: dict, device_id: int) -> float:
     """Return WeatherFlow Device Voltage from API."""
 
-    voltage = api_result["obs"][0][16]
+    voltage = None if api_result is None else api_result["obs"][0][16]
 
     device_data = WeatherFlowDeviceData(
         device_id,
