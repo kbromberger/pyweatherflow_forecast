@@ -323,6 +323,30 @@ class WeatherFlowForecastHourly:
         """Timestamp."""
         return self._timestamp
 
+
+class WeatherFlowDeviceData:
+    """Class to hold device data."""
+
+        # pylint: disable=R0913, R0902, R0914
+    def __init__(
+            self,
+            device_id: int,
+            voltage: float,
+    ) -> None:
+        """Dataset constructor."""
+        self._device_id = device_id
+        self._voltage = voltage
+
+    @property
+    def device_id(self) -> int:
+        """Return device id."""
+        return self._device_id
+
+    @property
+    def voltage(self) -> float:
+        """Return voltage of device."""
+        return self._voltage
+
 class WeatherFlowStationData:
     """Class to hold station data."""
 

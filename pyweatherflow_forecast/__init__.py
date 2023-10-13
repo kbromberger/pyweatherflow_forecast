@@ -10,6 +10,7 @@ from pyweatherflow_forecast.wffcst_lib import (
 from pyweatherflow_forecast.data import (
     WeatherFlowForecastData,
     WeatherFlowForecastDaily,
+    WeatherFlowDeviceData,
     WeatherFlowForecastHourly,
     WeatherFlowSensorData,
     WeatherFlowStationData,
