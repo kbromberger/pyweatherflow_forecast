@@ -221,7 +221,7 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
         api_url = f"{WEATHERFLOW_DEVICE_URL}{device_id}?token={api_token}"
 
         is_new_session = False
-        self.session = None
+        # self.session = None
         if self.session is None:
             self.session = aiohttp.ClientSession()
             is_new_session = True
