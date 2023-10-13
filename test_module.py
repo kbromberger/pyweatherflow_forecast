@@ -45,9 +45,6 @@ print("FREEZING ALT: ", sensor_data.freezing_altitude)
 print("VOLTAGE: ", sensor_data.voltage)
 print("BATTERY: ", sensor_data.battery)
 
-# data: WeatherFlowStationData = weatherflow.get_station()
-# print("STATION NAME: ", data.station_name)
-
 # data: WeatherFlowForecastData = weatherflow.get_forecast()
 # print("TEMPERATURE: ", data.temperature)
 # print("***** DAILY DATA *****")
