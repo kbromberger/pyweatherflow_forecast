@@ -435,7 +435,7 @@ class WeatherFlow:
 
     async def async_get_sensors(self) -> list[WeatherFlowSensorData]:
         """Return list of sensor data."""
-        voltage: float = await self.async_get_device_info()
+        voltage: float = self.get_device_info()
         self._json_data = await self._api.async_get_sensors_api(
             self._station_id, self._api_token
         )
