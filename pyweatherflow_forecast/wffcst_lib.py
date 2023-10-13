@@ -127,6 +127,7 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
     def get_device_api(self, device_id: int, api_token: str) -> dict[str, Any]:
         """Return data from API."""
         api_url = f"{WEATHERFLOW_DEVICE_URL}{device_id}?token={api_token}"
+        _LOGGER.debug("URL: %s", api_url)
 
         response = urlopen(api_url)
         data = response.read().decode("utf-8")
@@ -369,22 +370,22 @@ class WeatherFlow:
         self._elevation = elevation
         self._api = api
         self._json_data = None
-        self._station_data: WeatherFlowStationData = None
+        self._station_data: WeatherFlowStationData = self.get_station()
         self._voltage: float = None
 
         if session:
             self._api.session = session
 
-    @property
-    def station_data(self) -> WeatherFlowStationData:
-        """Return List of Station Data"""
-        if self._station_data is None:
-            self._station_data = self.get_station()
-        return self._station_data
+    # @property
+    # def station_data(self) -> WeatherFlowStationData:
+    #     """Return List of Station Data"""
+    #     if self._station_data is None:
+    #         self._station_data = self.get_station()
+    #     return self._station_data
 
     def get_device_info(self) -> float:
         """Return device info. Currently only Voltage."""
-        device_id = self.station_data.device_id
+        device_id = self._station_data.device_id
         json_data = self._api.get_device_api(device_id, self._api_token)
 
         return json_data["obs"][0][16]
@@ -406,11 +407,11 @@ class WeatherFlow:
         voltage: float = self.get_device_info()
         self._json_data = self._api.get_sensors_api(self._station_id, self._api_token)
 
-        return _get_sensor_data(self._json_data, self._elevation, self.station_data, voltage)
+        return _get_sensor_data(self._json_data, self._elevation, voltage)
 
     async def async_get_device_info(self) -> float:
         """Return device info. Currently only Voltage."""
-        device_id = self.station_data.device_id
+        device_id = self._station_data.device_id
         self._json_data = await self._api.async_get_device_api(
             device_id, self._api_token
         )
@@ -439,7 +440,7 @@ class WeatherFlow:
             self._station_id, self._api_token
         )
 
-        return _get_sensor_data(self._json_data, self._elevation, self.station_data, voltage)
+        return _get_sensor_data(self._json_data, self._elevation, voltage)
 
 def _calced_day_values(day_number, hourly_data) -> dict[str, Any]:
     """Calculate values for day by using hourly data."""
@@ -616,11 +617,10 @@ def _get_station(api_result: dict) -> list[WeatherFlowStationData]:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_sensor_data(api_result: dict, elevation: float, station_data: WeatherFlowStationData, voltage: float) -> list[WeatherFlowSensorData]:
+def _get_sensor_data(api_result: dict, elevation: float, voltage: float) -> list[WeatherFlowSensorData]:
     """Return WeatherFlowSensorData list from API."""
 
     _LOGGER.debug("ELEVATION: %s", elevation)
-    _LOGGER.debug("DEVICE ID: %s", station_data.device_id)
 
     item = api_result["obs"][0]
 
