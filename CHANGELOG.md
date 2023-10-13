@@ -1,3 +1,11 @@
+## Release 0.5.1
+
+**Date**: `2023-10-13`
+
+### Changes
+
+- Fixing loop when retreiving device information - used for the voltage data.
+
 ## Release 0.5.0
 
 **Date**: `2023-10-12`
