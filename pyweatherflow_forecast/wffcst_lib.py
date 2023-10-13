@@ -456,10 +456,10 @@ class WeatherFlow:
     async def async_get_sensors(self, voltage: float = None) -> list[WeatherFlowSensorData]:
         """Return list of sensor data."""
         self._json_data = await self._api.async_get_sensors_api(
-            self._station_id, self._api_token, voltage
+            self._station_id, self._api_token
         )
 
-        return _get_sensor_data(self._json_data, self._elevation)
+        return _get_sensor_data(self._json_data, self._elevation, voltage)
 
 def _calced_day_values(day_number, hourly_data) -> dict[str, Any]:
     """Calculate values for day by using hourly data."""
