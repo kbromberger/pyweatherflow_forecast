@@ -12,6 +12,7 @@ import time
 
 from pyweatherflow_forecast import (
     WeatherFlow,
+    WeatherFlowDeviceData,
     WeatherFlowSensorData,
     WeatherFlowStationData,
 )
@@ -30,32 +31,41 @@ async def main() -> None:
     weatherflow = WeatherFlow(station_id=station_id, api_token=api_token, elevation=elevation)
     try:
         station_data: WeatherFlowStationData = await weatherflow.async_get_station()
-        print("STATION NAME: ", station_data.station_name)
-        print("DEVICE ID: ", station_data.device_id)
-        print("FIRMWARE: ", station_data.firmware_revision)
-        print("SERIAL: ", station_data.serial_number)
+        # print("STATION NAME: ", station_data.station_name)
+        # print("DEVICE ID: ", station_data.device_id)
+        # print("FIRMWARE: ", station_data.firmware_revision)
+        # print("SERIAL: ", station_data.serial_number)
 
     except Exception as err:
         print(err)
 
     try:
-        sensor_data: WeatherFlowSensorData = await weatherflow.async_get_sensors()
-        print("TEMPERATURE:", sensor_data.air_temperature)
-        print("APPARENT:", sensor_data.feels_like)
-        print("WIND GUST:", sensor_data.wind_gust)
-        print("LAST LIGHTNING:", sensor_data.lightning_strike_last_epoch)
-        print("WIND DIRECTION: ", sensor_data.wind_direction)
-        print("WIND CARDINAL: ", sensor_data.wind_cardinal)
-        print("PRECIP CHECKED: ", sensor_data.precip_accum_local_day_final)
-        print("ABSOLUTE HUMIDITY: ", sensor_data.absolute_humidity)
-        print("VISIBILITY: ", sensor_data.visibility)
-        print("BEAUFORT: ", sensor_data.beaufort)
-        print("FREEZING ALT: ", sensor_data.freezing_altitude)
-        print("VOLTAGE: ", sensor_data.voltage)
-        print("BATTERY: ", sensor_data.battery)
+        device_data: WeatherFlowDeviceData = await weatherflow.async_get_device_info()
+        print("DEVICE ID: ", device_data.device_id)
+        print("VOLTAGE: ", device_data.voltage)
 
     except Exception as err:
         print(err)
+
+
+    # try:
+    #     sensor_data: WeatherFlowSensorData = await weatherflow.async_get_sensors()
+    #     print("TEMPERATURE:", sensor_data.air_temperature)
+    #     print("APPARENT:", sensor_data.feels_like)
+    #     print("WIND GUST:", sensor_data.wind_gust)
+    #     print("LAST LIGHTNING:", sensor_data.lightning_strike_last_epoch)
+    #     print("WIND DIRECTION: ", sensor_data.wind_direction)
+    #     print("WIND CARDINAL: ", sensor_data.wind_cardinal)
+    #     print("PRECIP CHECKED: ", sensor_data.precip_accum_local_day_final)
+    #     print("ABSOLUTE HUMIDITY: ", sensor_data.absolute_humidity)
+    #     print("VISIBILITY: ", sensor_data.visibility)
+    #     print("BEAUFORT: ", sensor_data.beaufort)
+    #     print("FREEZING ALT: ", sensor_data.freezing_altitude)
+    #     print("VOLTAGE: ", sensor_data.voltage)
+    #     print("BATTERY: ", sensor_data.battery)
+
+    # except Exception as err:
+    #     print(err)
 
     end = time.time()
 

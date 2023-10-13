@@ -20,6 +20,7 @@ from .const import (
     WEATHERFLOW_STATION_URL,
 )
 from .data import (
+    WeatherFlowDeviceData,
     WeatherFlowForecastData,
     WeatherFlowForecastDaily,
     WeatherFlowForecastHourly,
@@ -56,7 +57,7 @@ class WeatherFlowAPIBase:
     def get_device_api(self, device_id: int, api_token: str) -> dict[str, Any]:
         """Override this."""
         raise NotImplementedError(
-            "users must define get_forecast to use this base class"
+            "users must define get_device to use this base class"
         )
 
     @abc.abstractmethod
@@ -86,7 +87,7 @@ class WeatherFlowAPIBase:
     ) -> dict[str, Any]:
         """Override this."""
         raise NotImplementedError(
-            "users must define get_forecast to use this base class"
+            "users must define async_get_device to use this base class"
         )
 
     @abc.abstractmethod
@@ -218,6 +219,7 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
     ) -> dict[str, Any]:
         """Return data from API asynchronous."""
         api_url = f"{WEATHERFLOW_DEVICE_URL}{device_id}?token={api_token}"
+        _LOGGER.debug("URL: %s", api_url)
 
         is_new_session = False
         if self.session is None:
@@ -371,24 +373,18 @@ class WeatherFlow:
         self._api = api
         self._json_data = None
         self._station_data: WeatherFlowStationData = None
+        self._device_data: WeatherFlowDeviceData = None
         self._voltage: float = None
 
         if session:
             self._api.session = session
 
-    @property
-    def station_data(self) -> WeatherFlowStationData:
-        """Return List of Station Data"""
-        if self._station_data is None:
-            self._station_data = self.get_station()
-        return self._station_data
-
-    def get_device_info(self) -> float:
+    def get_device_info(self) -> list[WeatherFlowDeviceData]:
         """Return device info. Currently only Voltage."""
-        device_id = self.station_data.device_id
+        device_id = self._station_data.device_id
         json_data = self._api.get_device_api(device_id, self._api_token)
 
-        return json_data["obs"][0][16]
+        return _get_device_data(json_data)
 
     def get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
@@ -400,7 +396,9 @@ class WeatherFlow:
         """Return list of station information."""
         json_data = self._api.get_station_api(self._station_id, self._api_token)
 
-        return _get_station(json_data)
+        station_data = _get_station(json_data)
+        self._station_data = station_data
+        return station_data
 
     def get_sensors(self) -> list[WeatherFlowSensorData]:
         """Return list of sensor data."""
@@ -409,14 +407,15 @@ class WeatherFlow:
 
         return _get_sensor_data(self._json_data, self._elevation, voltage)
 
-    async def async_get_device_info(self) -> float:
+    async def async_get_device_info(self) -> list[WeatherFlowDeviceData]:
         """Return device info. Currently only Voltage."""
-        device_id = self.station_data.device_id
+        device_id = self._station_data.device_id
+        _LOGGER.debug("DEVICE ID, DATA: %s",device_id)
         self._json_data = await self._api.async_get_device_api(
             device_id, self._api_token
         )
 
-        return self._json_data["obs"][0][16]
+        return _get_device_data(self._json_data)
 
     async def async_get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
@@ -431,7 +430,9 @@ class WeatherFlow:
         json_data = await self._api.async_get_station_api(
                 self._station_id, self._api_token
             )
-        return _get_station(json_data)
+        station_data = _get_station(json_data)
+        self._station_data = station_data
+        return station_data
 
     async def async_get_sensors(self) -> list[WeatherFlowSensorData]:
         """Return list of sensor data."""
@@ -708,7 +709,14 @@ def _get_sensor_data(api_result: dict, elevation: float, voltage: float) -> list
     return sensor_data
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_device_data(api_result: dict) -> float:
+def _get_device_data(api_result: dict, device_id: int) -> float:
     """Return WeatherFlow Device Voltage from API."""
 
-    return api_result["obs"][0][16]
+    voltage = api_result["obs"][0][16]
+
+    device_data = WeatherFlowDeviceData(
+        device_id,
+        voltage,
+    )
+
+    return device_data
