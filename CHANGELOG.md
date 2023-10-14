@@ -1,3 +1,12 @@
+## Release 0.6.0
+
+**Date**: `2023-10-14`
+
+### Changes
+
+- Rewritten the Request modules to simplify code base.
+- Merged all API request needed for getting sensor data, into one function.
+
 ## Release 0.5.1
 
 **Date**: `2023-10-13`

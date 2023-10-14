@@ -30,7 +30,7 @@ print("DEVICE ID: ", station_data.device_id)
 print("FIRMWARE: ", station_data.firmware_revision)
 print("SERIAL: ", station_data.serial_number)
 
-sensor_data: WeatherFlowSensorData = weatherflow.get_sensors()
+sensor_data: WeatherFlowSensorData = weatherflow.fetch_sensor_data()
 print("TEMPERATURE:", sensor_data.air_temperature)
 print("APPARENT:", sensor_data.feels_like)
 print("WIND GUST:", sensor_data.wind_gust)
