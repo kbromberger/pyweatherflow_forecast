@@ -78,25 +78,6 @@ async def main() -> None:
         print(err)
 
 
-    # try:
-    #     sensor_data: WeatherFlowSensorData = await weatherflow.async_get_sensors()
-    #     print("TEMPERATURE:", sensor_data.air_temperature)
-    #     print("APPARENT:", sensor_data.feels_like)
-    #     print("WIND GUST:", sensor_data.wind_gust)
-    #     print("LAST LIGHTNING:", sensor_data.lightning_strike_last_epoch)
-    #     print("WIND DIRECTION: ", sensor_data.wind_direction)
-    #     print("WIND CARDINAL: ", sensor_data.wind_cardinal)
-    #     print("PRECIP CHECKED: ", sensor_data.precip_accum_local_day_final)
-    #     print("ABSOLUTE HUMIDITY: ", sensor_data.absolute_humidity)
-    #     print("VISIBILITY: ", sensor_data.visibility)
-    #     print("BEAUFORT: ", sensor_data.beaufort)
-    #     print("FREEZING ALT: ", sensor_data.freezing_altitude)
-    #     print("VOLTAGE: ", sensor_data.voltage)
-    #     print("BATTERY: ", sensor_data.battery)
-
-    # except Exception as err:
-    #     print(err)
-
     if session is not None:
         await session.close()
 
