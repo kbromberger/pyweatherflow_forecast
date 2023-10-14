@@ -106,7 +106,7 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
                     )
                 if response.status == 404:
                     raise WeatherFlowForecastWongStationId(
-                        f"404 NOT FOUND: The ID of the Station or Device cannot be found."
+                        "404 NOT FOUND: The ID of the Station or Device cannot be found."
                     )
                 if response.status == 500:
                     raise WeatherFlowForecastInternalServerError(
