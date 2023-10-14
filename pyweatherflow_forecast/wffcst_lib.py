@@ -54,69 +54,18 @@ class WeatherFlowAPIBase:
     """Baseclass to use as dependency injection pattern for easier automatic testing."""
 
     @abc.abstractmethod
-    def get_device_api(self, device_id: int, api_token: str) -> dict[str, Any]:
+    def api_request( self, url: str) -> dict[str, Any]:
         """Override this."""
         raise NotImplementedError(
-            "users must define get_device to use this base class"
+            "users must define api_request to use this base class"
         )
 
     @abc.abstractmethod
-    def get_forecast_api(self, station_id: int, api_token: str) -> dict[str, Any]:
+    async def async_api_request( self, url: str) -> dict[str, Any]:
         """Override this."""
         raise NotImplementedError(
-            "users must define get_forecast to use this base class"
+            "users must define async_api_request to use this base class"
         )
-
-    @abc.abstractmethod
-    def get_station_api(self, station_id: int, api_token: str) -> dict[str, Any]:
-        """Override this."""
-        raise NotImplementedError(
-            "users must define get_station to use this base class"
-        )
-
-    @abc.abstractmethod
-    def get_sensors_api(self, station_id: int, api_token: str) -> dict[str, Any]:
-        """Override this."""
-        raise NotImplementedError(
-            "users must define get_sensors to use this base class"
-        )
-
-    @abc.abstractmethod
-    async def async_get_device_api(
-        self, device_id: int, api_token: str
-    ) -> dict[str, Any]:
-        """Override this."""
-        raise NotImplementedError(
-            "users must define async_get_device to use this base class"
-        )
-
-    @abc.abstractmethod
-    async def async_get_forecast_api(
-        self, station_id: int, api_token: str
-    ) -> dict[str, Any]:
-        """Override this."""
-        raise NotImplementedError(
-            "users must define get_forecast to use this base class"
-        )
-
-    @abc.abstractmethod
-    async def async_get_station_api(
-        self, station_id: int, api_token: str
-    ) -> dict[str, Any]:
-        """Override this."""
-        raise NotImplementedError(
-            "users must define get_station to use this base class"
-        )
-
-    @abc.abstractmethod
-    async def async_get_sensors_api(
-        self, station_id: int, api_token: str
-    ) -> dict[str, Any]:
-        """Override this."""
-        raise NotImplementedError(
-            "users must define get_sensors to use this base class"
-        )
-
 
 class WeatherFlowAPI(WeatherFlowAPIBase):
     """Default implementation for WeatherFlow api."""
@@ -125,233 +74,43 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
         """Init the API with or without session."""
         self.session = None
 
-    def get_device_api(self, device_id: int, api_token: str) -> dict[str, Any]:
+    def api_request(self, url: str) -> dict[str, Any]:
         """Return data from API."""
-        if device_id is None:
-            return None
+        _LOGGER.debug("URL: %s", url)
 
-        api_url = f"{WEATHERFLOW_DEVICE_URL}{device_id}?token={api_token}"
-        _LOGGER.debug("URL: %s", api_url)
-
-        response = urlopen(api_url)
+        response = urlopen(url)
         data = response.read().decode("utf-8")
         json_data = json.loads(data)
 
         return json_data
 
-    def get_forecast_api(self, station_id: int, api_token: str) -> dict[str, Any]:
-        """Return data from API."""
-        api_url = f"{WEATHERFLOW_FORECAST_URL}{station_id}&token={api_token}"
-
-        response = urlopen(api_url)
-        data = response.read().decode("utf-8")
-        json_data = json.loads(data)
-
-        return json_data
-
-    def get_station_api(self, station_id: int, api_token: str) -> dict[str, Any]:
-        """Return data from API."""
-        api_url = f"{WEATHERFLOW_STATION_URL}{station_id}?token={api_token}"
-        _LOGGER.debug("URL: %s", api_url)
-
-        response = urlopen(api_url)
-        data = response.read().decode("utf-8")
-        json_data = json.loads(data)
-
-        return json_data
-
-    def get_sensors_api(self, station_id: int, api_token: str) -> dict[str, Any]:
-        """Return data from API."""
-        api_url = f"{WEATHERFLOW_SENSOR_URL}{station_id}?token={api_token}"
-        _LOGGER.debug("URL: %s", api_url)
-
-        response = urlopen(api_url)
-        data = response.read().decode("utf-8")
-        json_data = json.loads(data)
-
-        return json_data
-
-
-    async def async_get_forecast_api(
-        self, station_id: int, api_token: str
-    ) -> dict[str, Any]:
-        """Return data from API asynchronous."""
-        api_url = f"{WEATHERFLOW_FORECAST_URL}{station_id}&token={api_token}"
+    async def async_api_request(self, url: str) -> dict[str, Any]:
+        """Get data from WeatherFlow API."""
 
         is_new_session = False
         if self.session is None:
             self.session = aiohttp.ClientSession()
             is_new_session = True
 
-        async with self.session.get(api_url) as response:
+        async with self.session.get(url) as response:
             if response.status != 200:
                 if is_new_session:
                     await self.session.close()
                 if response.status == 400:
                     raise WeatherFlowForecastBadRequest(
-                        "400 BAD_REQUEST Requests is invalid in some way (invalid dates, bad location parameter etc)."
+                        "400 BAD_REQUEST: Requests is invalid in some way (invalid dates, bad location parameter etc)."
                     )
                 if response.status == 401:
                     raise WeatherFlowForecastUnauthorized(
-                        "401 UNAUTHORIZED The API key is incorrect or your account status is inactive or disabled."
-                    )
-                if response.status == 500:
-                    raise WeatherFlowForecastInternalServerError(
-                        "500 INTERNAL_SERVER_ERROR WeatherFlow servers encounter an unexpected error."
-                    )
-
-            data = await response.text()
-            if is_new_session:
-                await self.session.close()
-
-            json_data = json.loads(data)
-            fetch_status = json_data["status"]["status_code"]
-            if fetch_status == 3:
-                raise WeatherFlowForecastWongStationId(
-                    f"The Station with ID: {station_id} cannot be found."
-                )
-            if fetch_status == 401:
-                    raise WeatherFlowForecastUnauthorized(
-                        "401 UNAUTHORIZED The API token is incorrect or your account status is inactive or disabled."
-                    )
-
-            return json_data
-
-    async def async_get_device_api(
-        self, device_id: int, api_token: str
-    ) -> dict[str, Any]:
-        """Return data from API asynchronous."""
-        if device_id is None:
-            return None
-
-        api_url = f"{WEATHERFLOW_DEVICE_URL}{device_id}?token={api_token}"
-
-        is_new_session = False
-        # self.session = None
-        if self.session is None:
-            self.session = aiohttp.ClientSession()
-            is_new_session = True
-
-        async with self.session.get(api_url) as response:
-            if response.status != 200:
-                if is_new_session:
-                    await self.session.close()
-                if response.status == 400:
-                    raise WeatherFlowForecastBadRequest(
-                        "400 BAD_REQUEST Requests is invalid in some way (invalid dates, bad location parameter etc)."
-                    )
-                if response.status == 401:
-                    raise WeatherFlowForecastUnauthorized(
-                        "401 UNAUTHORIZED The API token is incorrect or your account status is inactive or disabled."
+                        "401 UNAUTHORIZED: The API token is incorrect or your account status is inactive or disabled."
                     )
                 if response.status == 404:
                     raise WeatherFlowForecastWongStationId(
-                        f"The Device with ID: {device_id}, cannot be found."
+                        f"404 NOT FOUND: The ID of the Station or Device cannot be found."
                     )
                 if response.status == 500:
                     raise WeatherFlowForecastInternalServerError(
-                        "500 INTERNAL_SERVER_ERROR WeatherFlow servers encounter an unexpected error."
-                    )
-            data = await response.text()
-            if is_new_session:
-                await self.session.close()
-
-            json_data = json.loads(data)
-
-            fetch_status = json_data["status"]["status_code"]
-            if fetch_status == 404:
-                if json_data.get("stations", None) is None:
-                    raise WeatherFlowForecastWongStationId(
-                        f"The Device with ID: {device_id}, cannot be found."
-                    )
-
-            if fetch_status == 401:
-                    raise WeatherFlowForecastUnauthorized(
-                        "401 UNAUTHORIZED The API token is incorrect or your account status is inactive or disabled."
-                    )
-            return json_data
-
-
-    async def async_get_station_api(
-        self, station_id: int, api_token: str
-    ) -> dict[str, Any]:
-        """Return data from API asynchronous."""
-        api_url = f"{WEATHERFLOW_STATION_URL}{station_id}?token={api_token}"
-
-        is_new_session = False
-        if self.session is None:
-            self.session = aiohttp.ClientSession()
-            is_new_session = True
-
-        async with self.session.get(api_url) as response:
-            if response.status != 200:
-                if is_new_session:
-                    await self.session.close()
-                if response.status == 400:
-                    raise WeatherFlowForecastBadRequest(
-                        "400 BAD_REQUEST Requests is invalid in some way (invalid dates, bad location parameter etc)."
-                    )
-                if response.status == 401:
-                    raise WeatherFlowForecastUnauthorized(
-                        "401 UNAUTHORIZED The API token is incorrect or your account status is inactive or disabled."
-                    )
-                if response.status == 404:
-                    raise WeatherFlowForecastWongStationId(
-                        f"The Station with ID: {station_id} cannot be found."
-                    )
-                if response.status == 500:
-                    raise WeatherFlowForecastInternalServerError(
-                        "500 INTERNAL_SERVER_ERROR WeatherFlow servers encounter an unexpected error."
-                    )
-            data = await response.text()
-            if is_new_session:
-                await self.session.close()
-
-            json_data = json.loads(data)
-            fetch_status = json_data["status"]["status_code"]
-            if fetch_status == 0:
-                if json_data.get("stations", None) is None:
-                    raise WeatherFlowForecastWongStationId(
-                        f"The Station with ID: {station_id} cannot be found."
-                    )
-
-                _stations = json_data["stations"][0]["capabilities"]
-                if len(_stations) == 0:
-                    raise WeatherFlowForecastUnauthorized(
-                        "401 UNAUTHORIZED The API token is incorrect or your account status is inactive or disabled."
-                    )
-            if fetch_status == 401:
-                    raise WeatherFlowForecastUnauthorized(
-                        "401 UNAUTHORIZED The API token is incorrect or your account status is inactive or disabled."
-                    )
-            return json_data
-
-    async def async_get_sensors_api(
-        self, station_id: int, api_token: str
-    ) -> dict[str, Any]:
-        """Return data from API asynchronous."""
-        api_url = f"{WEATHERFLOW_SENSOR_URL}{station_id}?token={api_token}"
-
-        is_new_session = False
-        if self.session is None:
-            self.session = aiohttp.ClientSession()
-            is_new_session = True
-
-        async with self.session.get(api_url) as response:
-            if response.status != 200:
-                if is_new_session:
-                    await self.session.close()
-                if response.status == 400:
-                    raise WeatherFlowForecastBadRequest(
-                        "400 BAD_REQUEST Requests is invalid in some way (invalid dates, bad location parameter etc)."
-                    )
-                if response.status == 401:
-                    raise WeatherFlowForecastUnauthorized(
-                        "401 UNAUTHORIZED The API key is incorrect or your account status is inactive or disabled."
-                    )
-                if response.status == 500:
-                    raise WeatherFlowForecastInternalServerError(
-                        "500 INTERNAL_SERVER_ERROR WeatherFlow servers encounter an unexpected error."
+                        "500 INTERNAL_SERVER_ERROR: WeatherFlow servers encounter an unexpected error."
                     )
 
             data = await response.text()
@@ -359,15 +118,6 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
                 await self.session.close()
 
             json_data = json.loads(data)
-            fetch_status = json_data["status"]["status_code"]
-            if fetch_status == 404:
-                raise WeatherFlowForecastWongStationId(
-                    f"The Station with ID: {station_id} cannot be found."
-                )
-            if fetch_status == 401:
-                    raise WeatherFlowForecastUnauthorized(
-                        "401 UNAUTHORIZED The API token is incorrect or your account status is inactive or disabled."
-                    )
 
             return json_data
 
@@ -396,70 +146,83 @@ class WeatherFlow:
         if session:
             self._api.session = session
 
-    def get_device(self, device_id: int) -> list[WeatherFlowDeviceData]:
-        """Return device info. Currently only Voltage."""
-        _device_id = device_id
-        json_data = self._api.get_device_api(_device_id, self._api_token)
-
-        self._device_data = _get_device_data(json_data)
-        return self._device_data
 
     def get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
-        self._json_data = self._api.get_forecast_api(self._station_id, self._api_token)
+        api_url = f"{WEATHERFLOW_FORECAST_URL}{self._station_id}&token={self._api_token}"
+        self._json_data = self._api.api_request(api_url)
 
         return _get_forecast(self._json_data)
 
     def get_station(self) -> list[WeatherFlowStationData]:
         """Return list of station information."""
-        json_data = self._api.get_station_api(self._station_id, self._api_token)
+        station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?token={self._api_token}"
+        json_data = self._api.api_request(station_url)
 
-        station_data = _get_station(json_data)
-        self._station_data = station_data
-        return station_data
+        return _get_station(json_data)
 
-    def get_sensors(self, voltage: float = None) -> list[WeatherFlowSensorData]:
+    def fetch_sensor_data(self, voltage: float = None) -> list[WeatherFlowSensorData]:
         """Return list of sensor data."""
-        self._json_data = self._api.get_sensors_api(self._station_id, self._api_token)
+        device_data = None
+        sensor_data = None
 
-        return _get_sensor_data(self._json_data, self._elevation, voltage)
+        station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?token={self._api_token}"
+        json_station_data = self._api.api_request(station_url)
+        station_data: WeatherFlowStationData = _get_station(json_station_data)
 
-    async def async_get_device(self, device_id: int) -> list[WeatherFlowDeviceData]:
-        """Return device info. Currently only Voltage."""
-        _device_id = device_id
-        _LOGGER.debug("DEVICE ID: %s", _device_id)
+        if station_data is not None:
+            _device_id = station_data.device_id
+            device_url = f"{WEATHERFLOW_DEVICE_URL}{_device_id}?token={self._api_token}"
+            json_device_data = self._api.api_request(device_url)
+            device_data: WeatherFlowDeviceData = _get_device_data(json_device_data, _device_id)
 
-        json_data = await self._api.async_get_device_api(
-            _device_id, self._api_token
-        )
+        if device_data is not None:
+            _voltage = device_data.voltage
+            api_url = f"{WEATHERFLOW_SENSOR_URL}{self._station_id}?token={self._api_token}"
+            json_data = self._api.api_request(api_url)
+            sensor_data = _get_sensor_data(json_data, self._elevation, _voltage)
 
-        self._device_data = _get_device_data(json_data, _device_id)
-        return self._device_data
+        return sensor_data
+
+    async def async_fetch_sensor_data(self) -> list[WeatherFlowSensorData]:
+        """Return sensor data from API."""
+        device_data = None
+        sensor_data = None
+
+        station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?token={self._api_token}"
+        json_station_data = await self._api.async_api_request(station_url)
+        station_data: WeatherFlowStationData = _get_station(json_station_data)
+
+        if station_data is not None:
+            _device_id = station_data.device_id
+            device_url = f"{WEATHERFLOW_DEVICE_URL}{_device_id}?token={self._api_token}"
+            json_device_data = await self._api.async_api_request(device_url)
+            device_data: WeatherFlowDeviceData = _get_device_data(json_device_data, _device_id)
+
+        if device_data is not None:
+            _voltage = device_data.voltage
+            api_url = f"{WEATHERFLOW_SENSOR_URL}{self._station_id}?token={self._api_token}"
+            json_data = await self._api.async_api_request(api_url)
+            sensor_data = _get_sensor_data(json_data, self._elevation, _voltage)
+
+        return sensor_data
 
     async def async_get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
-        self._json_data = await self._api.async_get_forecast_api(
-            self._station_id, self._api_token
-        )
+        api_url = f"{WEATHERFLOW_FORECAST_URL}{self._station_id}&token={self._api_token}"
+        self._json_data = await self._api.async_api_request(api_url)
 
         return _get_forecast(self._json_data)
 
     async def async_get_station(self) -> list[WeatherFlowStationData]:
         """Return list with Station information."""
-        json_data = await self._api.async_get_station_api(
-                self._station_id, self._api_token
-            )
+        api_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?token={self._api_token}"
+
+        json_data = await self._api.async_api_request(api_url)
         station_data = _get_station(json_data)
         self._station_data = station_data
         return station_data
 
-    async def async_get_sensors(self, voltage: float = None) -> list[WeatherFlowSensorData]:
-        """Return list of sensor data."""
-        self._json_data = await self._api.async_get_sensors_api(
-            self._station_id, self._api_token
-        )
-
-        return _get_sensor_data(self._json_data, self._elevation, voltage)
 
 def _calced_day_values(day_number, hourly_data) -> dict[str, Any]:
     """Calculate values for day by using hourly data."""
@@ -481,6 +244,7 @@ def _calced_day_values(day_number, hourly_data) -> dict[str, Any]:
         "wind_bearing": _sum_wind_bearing,
         "wind_speed": _sum_wind_speed
     }
+
 
 # pylint: disable=R0914, R0912, W0212, R0915
 def _get_forecast(api_result: dict) -> list[WeatherFlowForecastData]:
@@ -737,3 +501,4 @@ def _get_device_data(api_result: dict, device_id: int) -> float:
     )
 
     return device_data
+
