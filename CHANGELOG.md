@@ -1,3 +1,11 @@
+## Release 0.6.1
+
+**Date**: `2023-10-15`
+
+### Changes
+
+- Optimizing the *Fetch Sensor Data* by removing 1 call to the API per cycle.
+
 ## Release 0.6.0
 
 **Date**: `2023-10-14`
