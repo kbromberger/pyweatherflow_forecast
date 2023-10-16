@@ -189,20 +189,22 @@ class WeatherFlow:
         """Return sensor data from API."""
         device_data = None
         sensor_data = None
+        is_tempest_device = False
 
         if self._device_id is None:
             station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?token={self._api_token}"
             json_station_data = await self._api.async_api_request(station_url)
             station_data: WeatherFlowStationData = _get_station(json_station_data)
             self._device_id = station_data.device_id
+            is_tempest_device = True
 
         if self._device_id is not None:
             device_url = f"{WEATHERFLOW_DEVICE_URL}{self._device_id}?token={self._api_token}"
             json_device_data = await self._api.async_api_request(device_url)
             device_data: WeatherFlowDeviceData = _get_device_data(json_device_data, self._device_id)
 
-        if device_data is not None:
-            _voltage = device_data.voltage
+        if device_data is not None or not is_tempest_device:
+            _voltage = device_data.voltage if is_tempest_device else None
             api_url = f"{WEATHERFLOW_SENSOR_URL}{self._station_id}?token={self._api_token}"
             json_data = await self._api.async_api_request(api_url)
             sensor_data = _get_sensor_data(json_data, self._elevation, _voltage)
