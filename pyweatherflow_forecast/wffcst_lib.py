@@ -38,10 +38,6 @@ class WeatherFlowForecastUnauthorized(Exception):
     """Unauthorized API Key."""
 
 
-class WeatherFlowForecastDeviceNotFound(Exception):
-    """Device ID does not exist."""
-
-
 class WeatherFlowForecastWongStationId(Exception):
     """Station ID does not exist."""
 
