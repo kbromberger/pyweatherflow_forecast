@@ -87,6 +87,8 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
     async def async_api_request(self, url: str) -> dict[str, Any]:
         """Get data from WeatherFlow API."""
 
+        _LOGGER.debug("URL CALLED: %s", url)
+
         is_new_session = False
         if self.session is None:
             self.session = aiohttp.ClientSession()
@@ -167,11 +169,13 @@ class WeatherFlow:
         device_data = None
         sensor_data = None
 
-        station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?token={self._api_token}"
-        json_station_data = self._api.api_request(station_url)
-        station_data: WeatherFlowStationData = _get_station(json_station_data)
+        if self._device_id is None:
+            station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?token={self._api_token}"
+            json_station_data = self._api.api_request(station_url)
+            station_data: WeatherFlowStationData = _get_station(json_station_data)
+            self._device_id = station_data.device_id
 
-        if station_data is not None:
+        if self._device_id is not None:
             _device_id = station_data.device_id
             device_url = f"{WEATHERFLOW_DEVICE_URL}{_device_id}?token={self._api_token}"
             json_device_data = self._api.api_request(device_url)
@@ -194,9 +198,9 @@ class WeatherFlow:
             station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?token={self._api_token}"
             json_station_data = await self._api.async_api_request(station_url)
             station_data: WeatherFlowStationData = _get_station(json_station_data)
-
-        if station_data is not None:
             self._device_id = station_data.device_id
+
+        if self._device_id is not None:
             device_url = f"{WEATHERFLOW_DEVICE_URL}{self._device_id}?token={self._api_token}"
             json_device_data = await self._api.async_api_request(device_url)
             device_data: WeatherFlowDeviceData = _get_device_data(json_device_data, self._device_id)
