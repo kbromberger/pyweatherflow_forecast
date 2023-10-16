@@ -137,6 +137,7 @@ class WeatherFlow:
         self._elevation = elevation
         self._api = api
         self._device_id = None
+        self._tempest_device = False
         self._json_data = None
         self._station_data: WeatherFlowStationData = None
         self._device_data: WeatherFlowDeviceData = None
@@ -189,25 +190,21 @@ class WeatherFlow:
         """Return sensor data from API."""
         device_data = None
         sensor_data = None
-        is_tempest_device = False
 
-        if self._device_id is None:
-            _LOGGER.debug("CALLING STATION")
+        if self._device_id is None and not self._tempest_device:
             station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?token={self._api_token}"
             json_station_data = await self._api.async_api_request(station_url)
             station_data: WeatherFlowStationData = _get_station(json_station_data)
             self._device_id = station_data.device_id
-            is_tempest_device = True
+            self._tempest_device = False if self._device_id is None else True
 
-        if self._device_id is not None and is_tempest_device:
-            _LOGGER.debug("CALLING DEVICE")
+        if self._device_id is not None:
             device_url = f"{WEATHERFLOW_DEVICE_URL}{self._device_id}?token={self._api_token}"
             json_device_data = await self._api.async_api_request(device_url)
             device_data: WeatherFlowDeviceData = _get_device_data(json_device_data, self._device_id)
 
-        if device_data is not None or not is_tempest_device:
-            _LOGGER.debug("CALLING SENSOR")
-            _voltage = device_data.voltage if is_tempest_device else None
+        if device_data is not None or not self._tempest_device:
+            _voltage = device_data.voltage if self._tempest_device else None
             api_url = f"{WEATHERFLOW_SENSOR_URL}{self._station_id}?token={self._api_token}"
             json_data = await self._api.async_api_request(api_url)
             sensor_data = _get_sensor_data(json_data, self._elevation, _voltage)
@@ -388,7 +385,7 @@ def _get_station(api_result: dict) -> list[WeatherFlowStationData]:
     serial_number = None
     for device in item["devices"]:
         if device.get("device_type", None) == "ST":
-            # device_id = device.get("device_id", None)
+            device_id = device.get("device_id", None)
             firmware_revision = device.get("firmware_revision", None)
             serial_number = device.get("serial_number", None)
             break
@@ -403,7 +400,6 @@ def _get_station(api_result: dict) -> list[WeatherFlowStationData]:
         serial_number,
     )
 
-    _LOGGER.debug("STATION DATA: %s", station_data.device_id)
     return station_data
 
 

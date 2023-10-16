@@ -45,9 +45,10 @@ async def main() -> None:
         print(err)
 
     cnt = 1
-    while cnt < 3:
+    while cnt < 4:
         try:
             sensor_data: WeatherFlowSensorData = await weatherflow.async_fetch_sensor_data()
+            print("###########################################")
             print("TEMPERATURE:", sensor_data.air_temperature)
             print("APPARENT:", sensor_data.feels_like)
             print("WIND GUST:", sensor_data.wind_gust)
