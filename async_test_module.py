@@ -45,9 +45,10 @@ async def main() -> None:
         print(err)
 
     cnt = 1
-    while cnt < 3:
+    while cnt < 4:
         try:
             sensor_data: WeatherFlowSensorData = await weatherflow.async_fetch_sensor_data()
+            print("###########################################")
             print("TEMPERATURE:", sensor_data.air_temperature)
             print("APPARENT:", sensor_data.feels_like)
             print("WIND GUST:", sensor_data.wind_gust)
@@ -68,18 +69,18 @@ async def main() -> None:
             print(err)
 
 
-    try:
-        data: WeatherFlowForecastData = await weatherflow.async_get_forecast()
-        print("TEMPERATURE: ", data.temperature)
-        print("***** DAILY DATA *****")
-        for item in data.forecast_daily:
-            print(item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability, item.precipitation, item.wind_bearing, item.wind_speed)
-        print("***** HOURLY DATA *****")
-        for item in data.forecast_hourly:
-            print(item.datetime, item.temperature, item.apparent_temperature, item.icon, item.condition, item.precipitation, item.precipitation_probability)
+    # try:
+    #     data: WeatherFlowForecastData = await weatherflow.async_get_forecast()
+    #     print("TEMPERATURE: ", data.temperature)
+    #     print("***** DAILY DATA *****")
+    #     for item in data.forecast_daily:
+    #         print(item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability, item.precipitation, item.wind_bearing, item.wind_speed)
+    #     print("***** HOURLY DATA *****")
+    #     for item in data.forecast_hourly:
+    #         print(item.datetime, item.temperature, item.apparent_temperature, item.icon, item.condition, item.precipitation, item.precipitation_probability)
 
-    except Exception as err:
-        print(err)
+    # except Exception as err:
+    #     print(err)
 
 
     if session is not None:

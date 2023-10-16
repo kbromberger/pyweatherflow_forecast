@@ -1,3 +1,11 @@
+## Release 0.6.2
+
+**Date**: `2023-10-15`
+
+### Changes
+
+- Ensuring that the sensor function still works with AIR and SKY devices, even though we do not add Voltage and battery values.
+
 ## Release 0.6.1
 
 **Date**: `2023-10-15`
