@@ -1,3 +1,11 @@
+## Release 0.6.3
+
+**Date**: `2023-10-17`
+
+### Changes
+
+- Added check for None values in all calculated sensors, to ensure they will not throw an error.
+
 ## Release 0.6.2
 
 **Date**: `2023-10-15`
