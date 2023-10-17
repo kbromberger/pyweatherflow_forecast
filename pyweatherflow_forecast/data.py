@@ -803,6 +803,9 @@ class WeatherFlowSensorData:
     @property
     def wind_cardinal(self) -> str:
         """Wind Cardinal."""
+        if self._wind_direction is None:
+            return None
+
         direction_array = ["n", "nne", "ne", "ene", "e", "ese", "se", "sse", "s", "ssw", "sw", "wsw", "w", "wnw", "nw", "nnw", "n"]
         return direction_array[int((self._wind_direction + 11.25) / 22.5)]
 
