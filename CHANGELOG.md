@@ -1,3 +1,11 @@
+## Release 0.6.4
+
+**Date**: `NOT RELEASED`
+
+### Changes
+
+- Added new sensor `Power Save Mode` that shows the Power Mode of a Tempest device. Attributes of the sensor gives a textual explanation. For more information [read here](https://help.weatherflow.com/hc/en-us/articles/360048877194-Solar-Power-Rechargeable-Battery)
+
 ## Release 0.6.3
 
 **Date**: `2023-10-17`
