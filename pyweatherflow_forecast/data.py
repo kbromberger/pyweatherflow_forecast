@@ -668,6 +668,38 @@ class WeatherFlowSensorData:
         return self._lightning_strike_last_epoch
 
     @property
+    def power_save_mode(self) -> int:
+        """Power Save Mode (Tempest devices)."""
+        if self._voltage is None or self._solar_radiation is None:
+            return None
+
+        _power_save_mode = None
+        if self._voltage >= 2.455:
+            _power_save_mode = 0
+        elif self._voltage <= 2.355:
+            _power_save_mode = 3
+        elif self._solar_radiation > 100:
+            # Assume charging and Voltage is increasing
+            if self._voltage >= 2.41:
+                _power_save_mode = 1
+            elif self._voltage > 2.375:
+                _power_save_mode = 2
+            else:
+                _power_save_mode = 3
+        else:
+            # Assume discharging and voltage is decreasing
+            if self._voltage > 2.415:
+                _power_save_mode = 0
+            elif self._voltage > 2.39:
+                _power_save_mode = 1
+            elif self._voltage > 2.355:
+                _power_save_mode = 2
+            else:
+                _power_save_mode = 3
+
+        return _power_save_mode
+
+    @property
     def precip(self) -> float:
         """Precipitation."""
         return self._precip

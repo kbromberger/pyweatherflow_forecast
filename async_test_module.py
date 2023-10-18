@@ -62,6 +62,7 @@ async def main() -> None:
             print("FREEZING ALT: ", sensor_data.freezing_altitude)
             print("VOLTAGE: ", sensor_data.voltage)
             print("BATTERY: ", sensor_data.battery)
+            print("POWER SAVE MODE: ", sensor_data.power_save_mode)
 
             cnt += 1
 
