@@ -465,6 +465,7 @@ class WeatherFlowSensorData:
             precip_minutes_local_day_final: int,
             precip_minutes_local_yesterday_final: int,
             elevation: float,
+            station_name: str,
     ) -> None:
         """Dataset constructor."""
         self._air_density = air_density
@@ -506,6 +507,7 @@ class WeatherFlowSensorData:
         self._precip_minutes_local_day_final = precip_minutes_local_day_final
         self._precip_minutes_local_yesterday_final = precip_minutes_local_yesterday_final
         self._elevation = elevation
+        self._station_name = station_name
 
     @property
     def absolute_humidity(self) -> float:
@@ -800,6 +802,11 @@ class WeatherFlowSensorData:
         return self._solar_radiation
 
     @property
+    def station_name(self) -> str:
+        """Station name."""
+        return self._station_name
+
+    @property
     def station_pressure(self) -> float:
         """Station pressure."""
         return self._station_pressure
@@ -813,6 +820,26 @@ class WeatherFlowSensorData:
     def uv(self) -> float:
         """UV index."""
         return self._uv
+
+    @property
+    def uv_description(self) -> str:
+        """UV value description."""
+        if self._uv is None:
+            return None
+
+        mapping_text = {
+            "10.5": "extreme",
+            "7.5": "very-high",
+            "5.5": "high",
+            "2.8": "moderate",
+            "0": "low",
+        }
+
+        for key, value in mapping_text.items():
+            if self._wind_avg > float(key):
+                return value
+        return None
+
 
     @property
     def visibility(self) -> float:

@@ -197,6 +197,7 @@ class WeatherFlow:
             json_station_data = await self._api.async_api_request(station_url)
             station_data: WeatherFlowStationData = _get_station(json_station_data)
             self._device_id = station_data.device_id
+            self._station_name = station_data.station_name
             self._tempest_device = False if self._device_id is None else True
 
         if self._device_id is not None:
@@ -208,7 +209,7 @@ class WeatherFlow:
             _voltage = device_data.voltage if self._tempest_device else None
             api_url = f"{WEATHERFLOW_SENSOR_URL}{self._station_id}?token={self._api_token}"
             json_data = await self._api.async_api_request(api_url)
-            sensor_data = _get_sensor_data(json_data, self._elevation, _voltage)
+            sensor_data = _get_sensor_data(json_data, self._elevation, _voltage, self._station_name)
 
         return sensor_data
 
@@ -405,7 +406,7 @@ def _get_station(api_result: dict) -> list[WeatherFlowStationData]:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_sensor_data(api_result: dict, elevation: float, voltage: float) -> list[WeatherFlowSensorData]:
+def _get_sensor_data(api_result: dict, elevation: float, voltage: float, station_name: str) -> list[WeatherFlowSensorData]:
     """Return WeatherFlowSensorData list from API."""
 
     _LOGGER.debug("ELEVATION: %s", elevation)
@@ -490,6 +491,7 @@ def _get_sensor_data(api_result: dict, elevation: float, voltage: float) -> list
         precip_minutes_local_day_final,
         precip_minutes_local_yesterday_final,
         elevation,
+        station_name,
     )
 
     return sensor_data
