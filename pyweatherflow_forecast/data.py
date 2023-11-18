@@ -578,7 +578,7 @@ class WeatherFlowSensorData:
 
     @property
     def beaufort_description(self) -> str:
-        """Beaufort Textual Description"""
+        """Beaufort Textual Description."""
 
         if self._wind_avg is None:
             return None
