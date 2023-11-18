@@ -1,3 +1,12 @@
+## Release 1.0.0
+
+**Date**: `2023-11-18`
+
+### Changes
+
+- Added new binary_sensor `Is Lightning` showing if there is currently a lightning storm
+- Added new sensor `UV Description`, detailing the current UV value
+- Added new sensor `Staton Information`, detailing data about the Tempest Station
 
 ## Release 0.6.4
 
