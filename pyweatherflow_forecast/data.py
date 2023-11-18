@@ -553,34 +553,54 @@ class WeatherFlowSensorData:
         if self._wind_avg is None:
             return None
 
-        if self._wind_avg > 32.7:
-            _beaufort = 12
-        elif self._wind_avg >= 28.5:
-            _beaufort = 11
-        elif self._wind_avg >= 24.5:
-            _beaufort = 10
-        elif self._wind_avg >= 20.8:
-            _beaufort = 9
-        elif self._wind_avg >= 17.2:
-            _beaufort = 8
-        elif self._wind_avg >= 13.9:
-            _beaufort = 7
-        elif self._wind_avg >= 10.8:
-            _beaufort = 6
-        elif self._wind_avg >= 8.0:
-            _beaufort = 5
-        elif self._wind_avg >= 5.5:
-            _beaufort = 4
-        elif self._wind_avg >= 3.4:
-            _beaufort = 3
-        elif self._wind_avg >= 1.6:
-            _beaufort = 2
-        elif self._wind_avg >= 0.3:
-            _beaufort = 1
-        else:
-            _beaufort = 0
+        mapping_text = {
+            "32.7": 12,
+            "28.5": 11,
+            "24.5": 10,
+            "20.8": 9,
+            "17.2": 8,
+            "13.9": 7,
+            "10.8": 6,
+            "8.0": 5,
+            "5.5": 4,
+            "3.4": 3,
+            "1.6": 2,
+            "0.3": 1,
+            "-1": 0,
+        }
 
-        return _beaufort
+        for key, value in mapping_text.items():
+            if self._wind_avg > float(key):
+                return value
+        return None
+
+    @property
+    def beaufort_description(self) -> str:
+        """Beaufort Textual Description"""
+
+        if self._wind_avg is None:
+            return None
+
+        mapping_text = {
+            "32.7": "hurricane",
+            "28.5": "violent_storm",
+            "24.5": "storm",
+            "20.8": "strong_gale",
+            "17.2": "fresh_gale",
+            "13.9": "moderate_gale",
+            "10.8": "strong_breeze",
+            "8.0": "fresh_breeze",
+            "5.5": "moderate_breeze",
+            "3.4": "gentle_breeze",
+            "1.6": "light_breeze",
+            "0.3": "light_air",
+            "-1": "calm",
+        }
+
+        for key, value in mapping_text.items():
+            if self._wind_avg > float(key):
+                return value
+        return None
 
     @property
     def brightness(self) -> int:
@@ -629,18 +649,21 @@ class WeatherFlowSensorData:
         """Return if frost outside."""
         if self._air_temperature is None:
             return None
-        if self._air_temperature < 0:
-            return True
-        return False
+        return self._air_temperature < 0
+
+    @property
+    def is_lightning(self) -> bool:
+        """Return if lightning strikes."""
+        if self._lightning_strike_count is None:
+            return None
+        return self._lightning_strike_count > 0
 
     @property
     def is_raining(self) -> bool:
         """Return if raining."""
         if self._precip is None:
             return None
-        if self._precip > 0:
-            return True
-        return False
+        return self._precip > 0
 
     @property
     def lightning_strike_count(self) -> int:

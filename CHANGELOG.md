@@ -1,6 +1,7 @@
+
 ## Release 0.6.4
 
-**Date**: `NOT RELEASED`
+**Date**: `2023-10-18`
 
 ### Changes
 
