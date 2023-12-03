@@ -752,6 +752,28 @@ class WeatherFlowSensorData:
         return self._precip_accum_local_yesterday
 
     @property
+    def precip_intensity(self) -> str:
+        """Return a string with precipitation intensity."""
+        if self._precip in None:
+            return None
+        _rain_rate = self._precip * 60
+
+        mapping_text = {
+            "1000": "extreme",
+            "50": "very_heavy",
+            "16": "heavy",
+            "4": "moderate",
+            "1": "light",
+            "0.25": "very_light",
+            "0.01": "none",
+        }
+
+        for key, value in mapping_text.items():
+            if _rain_rate < float(key):
+                return value
+        return None
+
+    @property
     def precip_minutes_local_day(self) -> int:
         """Precipitation minutes today."""
         return self._precip_minutes_local_day
