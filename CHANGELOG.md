@@ -1,3 +1,11 @@
+## Release 1.0.1
+
+**Date**: `2023-12-04`
+
+### Changes
+
+- Added new sensor `Precip Intensity` exposing a text string with the intensity of the current rain
+
 ## Release 1.0.0
 
 **Date**: `2023-11-18`
