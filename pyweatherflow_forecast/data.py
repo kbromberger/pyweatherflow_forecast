@@ -3,6 +3,8 @@
 from __future__ import annotations
 from datetime import datetime
 import math
+import logging
+_LOGGER = logging.getLogger(__name__)
 
 class WeatherFlowForecastData:
     """Class to hold forecast data."""
@@ -754,22 +756,21 @@ class WeatherFlowSensorData:
     @property
     def precip_intensity(self) -> str:
         """Return a string with precipitation intensity."""
-        if self._precip in None:
+        if self._precip is None:
             return None
-        _rain_rate = self._precip * 60
 
         mapping_text = {
-            "1000": "extreme",
-            "50": "very_heavy",
-            "16": "heavy",
-            "4": "moderate",
-            "1": "light",
+            "0.01": "no_rain",
             "0.25": "very_light",
-            "0.01": "none",
+            "1": "light",
+            "4": "moderate",
+            "16": "heavy",
+            "50": "very_heavy",
+            "1000": "extreme",
         }
 
         for key, value in mapping_text.items():
-            if _rain_rate < float(key):
+            if (self._precip * 60) < float(key):
                 return value
         return None
 

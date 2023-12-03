@@ -44,51 +44,49 @@ async def main() -> None:
     except Exception as err:
         print(err)
 
-    cnt = 1
-    while cnt < 2:
-        try:
-            sensor_data: WeatherFlowSensorData = await weatherflow.async_fetch_sensor_data()
-            print("###########################################")
-            print("TEMPERATURE:", sensor_data.air_temperature)
-            print("APPARENT:", sensor_data.feels_like)
-            print("WIND GUST:", sensor_data.wind_gust)
-            print("LAST LIGHTNING:", sensor_data.lightning_strike_last_epoch)
-            print("WIND DIRECTION: ", sensor_data.wind_direction)
-            print("WIND CARDINAL: ", sensor_data.wind_cardinal)
-            print("PRECIP CHECKED: ", sensor_data.precip_accum_local_day_final)
-            print("ABSOLUTE HUMIDITY: ", sensor_data.absolute_humidity)
-            print("VISIBILITY: ", sensor_data.visibility)
-            print("BEAUFORT: ", sensor_data.beaufort)
-            print("BEAUFORT: ", sensor_data.beaufort_description)
-            print("FREEZING ALT: ", sensor_data.freezing_altitude)
-            print("VOLTAGE: ", sensor_data.voltage)
-            print("BATTERY: ", sensor_data.battery)
-            print("POWER SAVE MODE: ", sensor_data.power_save_mode)
-            print("IS FREEZING: ", sensor_data.is_freezing)
-            print("IS LIGHTNING: ", sensor_data.is_lightning)
-            print("IS RAINING: ", sensor_data.is_raining)
-            print("UV INDEX: ", sensor_data.uv)
-            print("UV DESCRIPTION: ", sensor_data.uv_description)
-            print("STATION NAME: ", sensor_data.station_name)
-
-            cnt += 1
-
-        except Exception as err:
-            print(err)
-
-
     try:
-        data: WeatherFlowForecastData = await weatherflow.async_get_forecast()
-        print("TEMPERATURE: ", data.temperature)
-        print("***** DAILY DATA *****")
-        for item in data.forecast_daily:
-            print(item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability, item.precipitation, item.wind_bearing, item.wind_speed)
-        print("***** HOURLY DATA *****")
-        for item in data.forecast_hourly:
-            print(item.datetime, item.temperature, item.apparent_temperature, item.icon, item.condition, item.precipitation, item.precipitation_probability)
+        sensor_data: WeatherFlowSensorData = await weatherflow.async_fetch_sensor_data()
+        print("###########################################")
+        print("TEMPERATURE:", sensor_data.air_temperature)
+        print("APPARENT:", sensor_data.feels_like)
+        print("WIND GUST:", sensor_data.wind_gust)
+        print("LAST LIGHTNING:", sensor_data.lightning_strike_last_epoch)
+        print("WIND DIRECTION: ", sensor_data.wind_direction)
+        print("WIND CARDINAL: ", sensor_data.wind_cardinal)
+        print("PRECIP CHECKED: ", sensor_data.precip_accum_local_day_final)
+        print("ABSOLUTE HUMIDITY: ", sensor_data.absolute_humidity)
+        print("VISIBILITY: ", sensor_data.visibility)
+        print("BEAUFORT: ", sensor_data.beaufort)
+        print("BEAUFORT: ", sensor_data.beaufort_description)
+        print("FREEZING ALT: ", sensor_data.freezing_altitude)
+        print("VOLTAGE: ", sensor_data.voltage)
+        print("BATTERY: ", sensor_data.battery)
+        print("POWER SAVE MODE: ", sensor_data.power_save_mode)
+        print("IS FREEZING: ", sensor_data.is_freezing)
+        print("IS LIGHTNING: ", sensor_data.is_lightning)
+        print("IS RAINING: ", sensor_data.is_raining)
+        print("UV INDEX: ", sensor_data.uv)
+        print("UV DESCRIPTION: ", sensor_data.uv_description)
+        print("STATION NAME: ", sensor_data.station_name)
+        print("PRECIP INTENSITY: ", sensor_data.precip_intensity)
+        print("PRECIP: ", sensor_data.precip)
 
     except Exception as err:
         print(err)
+
+
+    # try:
+    #     data: WeatherFlowForecastData = await weatherflow.async_get_forecast()
+    #     print("TEMPERATURE: ", data.temperature)
+    #     print("***** DAILY DATA *****")
+    #     for item in data.forecast_daily:
+    #         print(item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability, item.precipitation, item.wind_bearing, item.wind_speed)
+    #     print("***** HOURLY DATA *****")
+    #     for item in data.forecast_hourly:
+    #         print(item.datetime, item.temperature, item.apparent_temperature, item.icon, item.condition, item.precipitation, item.precipitation_probability)
+
+    # except Exception as err:
+    #     print(err)
 
 
     if session is not None:
