@@ -334,10 +334,12 @@ class WeatherFlowDeviceData:
             self,
             device_id: int,
             voltage: float,
+            precipitation_type: int,
     ) -> None:
         """Dataset constructor."""
         self._device_id = device_id
         self._voltage = voltage
+        self._precipitation_type = precipitation_type
 
     @property
     def device_id(self) -> int:
@@ -348,6 +350,11 @@ class WeatherFlowDeviceData:
     def voltage(self) -> float:
         """Return voltage of device."""
         return self._voltage
+
+    @property
+    def precipitation_type(self) -> int:
+        """Return Precipiation type."""
+        return self._precipitation_type
 
     @property
     def battery(self) -> int:
@@ -447,6 +454,7 @@ class WeatherFlowSensorData:
             precip_accum_local_yesterday: float,
             precip_minutes_local_day: int,
             precip_minutes_local_yesterday: int,
+            precipitation_type: int,
             pressure_trend: str,
             relative_humidity: int,
             sea_level_pressure: float,
@@ -489,6 +497,7 @@ class WeatherFlowSensorData:
         self._precip_accum_local_yesterday = precip_accum_local_yesterday
         self._precip_minutes_local_day = precip_minutes_local_day
         self._precip_minutes_local_yesterday = precip_minutes_local_yesterday
+        self._precipitation_type = precipitation_type
         self._pressure_trend = pressure_trend
         self._relative_humidity = relative_humidity
         self._sea_level_pressure = sea_level_pressure
@@ -803,6 +812,11 @@ class WeatherFlowSensorData:
     def precip_minutes_local_yesterday_final(self) -> int:
         """Precipitation minutes yesterday (Rain Check)."""
         return self._precip_minutes_local_yesterday_final
+
+    @property
+    def precip_type(self) -> str:
+        """Return precipitation type."""
+        return self._precipitation_type
 
     @property
     def pressure_trend(self) -> str:

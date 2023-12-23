@@ -180,10 +180,11 @@ class WeatherFlow:
             device_data: WeatherFlowDeviceData = _get_device_data(json_device_data, _device_id)
 
         if device_data is not None or not self._tempest_device:
+            _precipitation_type = device_data.precipitation_type if self._tempest_device else None
             _voltage = device_data.voltage if self._tempest_device else None
             api_url = f"{WEATHERFLOW_SENSOR_URL}{self._station_id}?token={self._api_token}"
             json_data = self._api.api_request(api_url)
-            sensor_data = _get_sensor_data(json_data, self._elevation, _voltage)
+            sensor_data = _get_sensor_data(json_data, self._elevation, _voltage, _precipitation_type, self._station_name)
 
         return sensor_data
 
@@ -206,10 +207,11 @@ class WeatherFlow:
             device_data: WeatherFlowDeviceData = _get_device_data(json_device_data, self._device_id)
 
         if device_data is not None or not self._tempest_device:
+            _precipitation_type = device_data.precipitation_type if self._tempest_device else None
             _voltage = device_data.voltage if self._tempest_device else None
             api_url = f"{WEATHERFLOW_SENSOR_URL}{self._station_id}?token={self._api_token}"
             json_data = await self._api.async_api_request(api_url)
-            sensor_data = _get_sensor_data(json_data, self._elevation, _voltage, self._station_name)
+            sensor_data = _get_sensor_data(json_data, self._elevation, _voltage, _precipitation_type, self._station_name)
 
         return sensor_data
 
@@ -406,7 +408,7 @@ def _get_station(api_result: dict) -> list[WeatherFlowStationData]:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_sensor_data(api_result: dict, elevation: float, voltage: float, station_name: str) -> list[WeatherFlowSensorData]:
+def _get_sensor_data(api_result: dict, elevation: float, voltage: float, precipitation_type: int, station_name: str) -> list[WeatherFlowSensorData]:
     """Return WeatherFlowSensorData list from API."""
 
     _LOGGER.debug("ELEVATION: %s", elevation)
@@ -471,6 +473,7 @@ def _get_sensor_data(api_result: dict, elevation: float, voltage: float, station
         precip_accum_local_yesterday,
         precip_minutes_local_day,
         precip_minutes_local_yesterday,
+        precipitation_type,
         pressure_trend,
         relative_humidity,
         sea_level_pressure,
@@ -500,11 +503,13 @@ def _get_sensor_data(api_result: dict, elevation: float, voltage: float, station
 def _get_device_data(api_result: dict, device_id: int) -> float:
     """Return WeatherFlow Device Voltage from API."""
 
+    precipitation_type = None if api_result is None else api_result["obs"][0][13]
     voltage = None if api_result is None else api_result["obs"][0][16]
 
     device_data = WeatherFlowDeviceData(
         device_id,
         voltage,
+        precipitation_type,
     )
 
     return device_data
