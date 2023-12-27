@@ -1,3 +1,4 @@
+# ruff: noqa: F401
 """Python Wrapper for WeatherFlow Forecast API."""
 from __future__ import annotations
 from pyweatherflow_forecast.wffcst_lib import (
