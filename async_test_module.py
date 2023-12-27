@@ -1,3 +1,4 @@
+# ruff: noqa: F401
 """This module is only used to run some realtime data tests using the async functions, while developing the module.
 
 Create a .env file and add STATION_ID with the id of your station and API_TOKEN with the personal Token.
@@ -13,9 +14,9 @@ import time
 
 from pyweatherflow_forecast import (
     WeatherFlow,
+    WeatherFlowStationData,
     WeatherFlowForecastData,
     WeatherFlowSensorData,
-    WeatherFlowStationData,
 )
 
 _LOGGER = logging.getLogger(__name__)

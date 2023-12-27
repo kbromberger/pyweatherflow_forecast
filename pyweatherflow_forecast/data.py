@@ -26,8 +26,8 @@ class WeatherFlowForecastData:
         wind_bearing: int,
         wind_gust_speed: float,
         wind_speed: float,
-        forecast_daily: WeatherFlowForecastDaily = None,
-        forecast_hourly: WeatherFlowForecastHourly = None,
+        forecast_daily: WeatherFlowForecastDaily | None = None,
+        forecast_hourly: WeatherFlowForecastHourly | None = None,
     ) -> None:
         """Dataset constructor."""
         self._datetime = datetime
@@ -119,7 +119,7 @@ class WeatherFlowForecastData:
         return self._timestamp
 
     @property
-    def forecast_daily(self) -> WeatherFlowForecastDaily:
+    def forecast_daily(self) -> WeatherFlowForecastDaily | None:
         """Forecast List."""
         return self._forecast_daily
 
@@ -129,7 +129,7 @@ class WeatherFlowForecastData:
         self._forecast_daily = new_forecast
 
     @property
-    def forecast_hourly(self) -> WeatherFlowForecastHourly:
+    def forecast_hourly(self) -> WeatherFlowForecastHourly | None:
         """Forecast List."""
         return self._forecast_hourly
 
@@ -329,7 +329,7 @@ class WeatherFlowForecastHourly:
 class WeatherFlowDeviceData:
     """Class to hold device data."""
 
-        # pylint: disable=R0913, R0902, R0914
+    # pylint: disable=R0913, R0902, R0914
     def __init__(
             self,
             device_id: int,
@@ -357,11 +357,12 @@ class WeatherFlowDeviceData:
         return self._precipitation_type
 
     @property
-    def battery(self) -> int:
+    def battery(self) -> float:
         """Battery (%)."""
         if self._voltage is None:
             return None
 
+        _percent: float
         if self._voltage > 2.80:
             _percent = 100
         elif self._voltage < 1.80:
@@ -369,7 +370,7 @@ class WeatherFlowDeviceData:
         else:
             _percent = (self._voltage - 1.8) * 100
 
-        return _percent
+        return float(_percent)
 
 class WeatherFlowStationData:
     """Class to hold station data."""
@@ -447,14 +448,14 @@ class WeatherFlowSensorData:
             lightning_strike_count_last_1hr: int,
             lightning_strike_count_last_3hr: int,
             lightning_strike_last_distance: int,
-            lightning_strike_last_epoch: datetime.timestamp,
+            lightning_strike_last_epoch: float,
             precip: float,
             precip_accum_last_1hr: float,
             precip_accum_local_day: float,
             precip_accum_local_yesterday: float,
             precip_minutes_local_day: int,
             precip_minutes_local_yesterday: int,
-            precipitation_type: int,
+            precipitation_type: int | None,
             pressure_trend: str,
             relative_humidity: int,
             sea_level_pressure: float,
@@ -462,7 +463,7 @@ class WeatherFlowSensorData:
             station_pressure: float,
             timestamp: int,
             uv: float,
-            voltage: float,
+            voltage: float | None,
             wet_bulb_globe_temperature: float,
             wet_bulb_temperature: float,
             wind_avg: float,
@@ -546,11 +547,12 @@ class WeatherFlowSensorData:
         return self._barometric_pressure
 
     @property
-    def battery(self) -> int:
+    def battery(self) -> float | None:
         """Battery (%)."""
         if self._voltage is None:
             return None
 
+        _percent: float
         if self._voltage > 2.80:
             _percent = 100
         elif self._voltage < 1.80:
@@ -561,7 +563,7 @@ class WeatherFlowSensorData:
         return _percent
 
     @property
-    def beaufort(self) -> int:
+    def beaufort(self) -> int | None:
         """Beaufort Value."""
         if self._wind_avg is None:
             return None
@@ -588,7 +590,7 @@ class WeatherFlowSensorData:
         return None
 
     @property
-    def beaufort_description(self) -> str:
+    def beaufort_description(self) -> str | None:
         """Beaufort Textual Description."""
 
         if self._wind_avg is None:
@@ -699,12 +701,12 @@ class WeatherFlowSensorData:
         return self._lightning_strike_last_distance
 
     @property
-    def lightning_strike_last_epoch(self) -> datetime.timestamp:
+    def lightning_strike_last_epoch(self) -> float:
         """Last lightning strike epoch time."""
         return self._lightning_strike_last_epoch
 
     @property
-    def power_save_mode(self) -> int:
+    def power_save_mode(self) -> int | None:
         """Power Save Mode (Tempest devices)."""
         if self._voltage is None or self._solar_radiation is None:
             return None
@@ -763,7 +765,7 @@ class WeatherFlowSensorData:
         return self._precip_accum_local_yesterday
 
     @property
-    def precip_intensity(self) -> str:
+    def precip_intensity(self) -> str | None:
         """Return a string with precipitation intensity."""
         if self._precip is None:
             return None
@@ -814,7 +816,7 @@ class WeatherFlowSensorData:
         return self._precip_minutes_local_yesterday_final
 
     @property
-    def precip_type(self) -> str:
+    def precip_type(self) -> int | None:
         """Return precipitation type."""
         return self._precipitation_type
 
@@ -859,7 +861,7 @@ class WeatherFlowSensorData:
         return self._uv
 
     @property
-    def uv_description(self) -> str:
+    def uv_description(self) -> str | None:
         """UV value description."""
         if self._uv is None:
             return None
@@ -900,7 +902,7 @@ class WeatherFlowSensorData:
         return float(_max_visibility * _percent_reduction)
 
     @property
-    def voltage(self) -> float:
+    def voltage(self) -> float | None:
         """Return voltage of device."""
         return self._voltage
 
