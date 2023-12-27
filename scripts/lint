@@ -6,3 +6,4 @@ cd "$(dirname "$0")/.."
 
 ruff check . --fix
 mypy pyweatherflow_forecast
+

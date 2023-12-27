@@ -1,3 +1,11 @@
+## Release 1.0.2
+
+**Date**: `2023-12-23`
+
+### Changes
+
+- Added new sensor `Precip Type` exposing an integer with the type of precipitation, if any. Possible values are: 0 = none, 1 = rain, 2 = hail and 3 = rain+hail (Experimental)
+
 ## Release 1.0.1
 
 **Date**: `2023-12-04`
