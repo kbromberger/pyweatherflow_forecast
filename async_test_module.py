@@ -82,7 +82,7 @@ async def main() -> None:
         print("TEMPERATURE: ", data.temperature)
         print("***** DAILY DATA *****")
         for item in data.forecast_daily:
-            print(item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability, item.precipitation, item.wind_bearing, item.wind_speed)
+            print(item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability, item.precipitation, item.wind_bearing, item.wind_speed, item.wind_gust)
         print("***** HOURLY DATA *****")
         for item in data.forecast_hourly:
             print(item.datetime, item.temperature, item.apparent_temperature, item.icon, item.condition, item.precipitation, item.precipitation_probability)

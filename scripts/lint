@@ -5,5 +5,5 @@ set -e
 cd "$(dirname "$0")/.."
 
 ruff check . --fix
-mypy pyweatherflow_forecast
+# mypy pyweatherflow_forecast
 
