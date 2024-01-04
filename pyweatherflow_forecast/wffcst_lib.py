@@ -236,20 +236,24 @@ def _calced_day_values(day_number, hourly_data) -> dict[str, Any]:
     _precipitation: float = 0
     _wind_speed = []
     _wind_bearing = []
+    _wind_gust = []
 
     for item in hourly_data:
         if item.get("local_day") == day_number:
             _precipitation += item.get("precip", 0)
             _wind_bearing.append(item.get("wind_direction", 0))
             _wind_speed.append(item.get("wind_avg", 0))
+            _wind_gust.append(item.get("wind_gust", 0))
 
     _sum_wind_speed = sum(_wind_speed) / len(_wind_speed)
     _sum_wind_bearing = sum(_wind_bearing) / len(_wind_bearing)
+    _max_wind_gust = max(_wind_gust)
 
     return {
         "precipitation": _precipitation,
         "wind_bearing": _sum_wind_bearing,
-        "wind_speed": _sum_wind_speed
+        "wind_speed": _sum_wind_speed,
+        "wind_gust": _max_wind_gust,
     }
 
 
@@ -276,6 +280,7 @@ def _get_forecast(api_result: dict) -> WeatherFlowForecastData:
         precipitation = _calc_values["precipitation"]
         wind_bearing = _calc_values["wind_bearing"]
         wind_speed = _calc_values["wind_speed"]
+        wind_gust = _calc_values["wind_gust"]
 
         forecast_d = WeatherFlowForecastDaily(
             valid_time,
@@ -288,6 +293,7 @@ def _get_forecast(api_result: dict) -> WeatherFlowForecastData:
             precipitation,
             wind_bearing,
             wind_speed,
+            wind_gust,
         )
         forecasts_daily.append(forecast_d)
 

@@ -1,3 +1,11 @@
+## Release 1.0.3
+
+**Date**: `2024-01-04`
+
+### Changes
+
+- Added `wind_gust` to Daily Forecast
+
 ## Release 1.0.2
 
 **Date**: `2023-12-23`

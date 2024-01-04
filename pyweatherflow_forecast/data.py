@@ -154,6 +154,7 @@ class WeatherFlowForecastDaily:
         precipitation: float,
         wind_bearing: int,
         wind_speed: float,
+        wind_gust: float,
     ) -> None:
         """Dataset constructor."""
         self._datetime = datetime
@@ -166,6 +167,7 @@ class WeatherFlowForecastDaily:
         self._precipitation = precipitation
         self._wind_bearing = wind_bearing
         self._wind_speed = wind_speed
+        self._wind_gust = wind_gust
 
     @property
     def datetime(self) -> datetime:
@@ -216,6 +218,11 @@ class WeatherFlowForecastDaily:
     def wind_speed(self) -> float:
         """Wind speed (m/s)."""
         return self._wind_speed
+
+    @property
+    def wind_gust(self) -> float:
+        """Wind gust (m/s)."""
+        return self._wind_gust
 
 
 class WeatherFlowForecastHourly:
