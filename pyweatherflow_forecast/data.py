@@ -453,7 +453,7 @@ class WeatherFlowSensorData:
             lightning_strike_count_last_1hr: int,
             lightning_strike_count_last_3hr: int,
             lightning_strike_last_distance: int,
-            lightning_strike_last_epoch: datetime.timestamp,
+            lightning_strike_last_epoch: int,
             precip: float,
             precip_accum_last_1hr: float,
             precip_accum_local_day: float,
@@ -705,7 +705,7 @@ class WeatherFlowSensorData:
         return self._lightning_strike_last_distance
 
     @property
-    def lightning_strike_last_epoch(self) -> datetime.timestamp:
+    def lightning_strike_last_epoch(self) -> int:
         """Last lightning strike epoch time."""
         return self._lightning_strike_last_epoch
 
