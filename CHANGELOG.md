@@ -1,3 +1,11 @@
+## Release 1.0.4
+
+**Date**: `2024-01-06`
+
+### Changes
+
+- Reverting changes done by `mypy` that seems to have caused problems for some people.
+
 ## Release 1.0.3
 
 **Date**: `2024-01-04`
