@@ -18,6 +18,6 @@ from pyweatherflow_forecast.data import (
 )
 
 __title__ = "pyweatherflow_forecast"
-__version__ = "1.0.4"
+__version__ = "1.0.5"
 __author__ = "briis"
 __license__ = "MIT"
