@@ -1,3 +1,11 @@
+## Release 1.0.6
+
+**Date**: `2024-01-20`
+
+### Changes
+
+- Fixed the issue where a wrong value was used to calculate the UV Description sensor.
+
 ## Release 1.0.5
 
 **Date**: `2024-01-06`
