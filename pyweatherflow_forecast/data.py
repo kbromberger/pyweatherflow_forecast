@@ -879,7 +879,7 @@ class WeatherFlowSensorData:
         }
 
         for key, value in mapping_text.items():
-            if self._wind_avg > float(key):
+            if self._uv > float(key):
                 return value
         return None
 
