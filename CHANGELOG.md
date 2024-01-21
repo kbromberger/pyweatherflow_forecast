@@ -4,7 +4,7 @@
 
 ### Changes
 
-- Handling if the station is offline or there is no recent observations.
+- Handling if the station is offline or there are no recent observations. Returning and empty dataset with the field `data_available` set to False if no data can be retrieved.
 
 ## Release 1.0.7
 
