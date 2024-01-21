@@ -1,3 +1,11 @@
+## Release 1.0.8
+
+**Date**: `2024-01-21`
+
+### Changes
+
+- Handling if the Station if the station is offline or there is no recent observations.
+
 ## Release 1.0.7
 
 **Date**: `2024-01-20`
