@@ -47,7 +47,7 @@ class WeatherFlowForecastInternalServerError(Exception):
 
 
 class WeatherFlowForecastStationOfflineError(Exception):
-    """Weather Station either is offline or no recent observations."""
+    """Weather Station either is offline or no recent observations. Remove Sensors to avoid this error."""
 
 
 class WeatherFlowAPIBase:
@@ -426,7 +426,7 @@ def _get_sensor_data(api_result: dict, elevation: float, voltage: float, precipi
     if len(api_result["obs"]) == 0:
         _LOGGER.warning("Weather Station either is offline or no recent observations.")
         raise WeatherFlowForecastStationOfflineError(
-            "Weather Station either is offline or no recent observations."
+            "Weather Station either is offline or no recent observations. Remove Sensors to avoid this error."
         )
 
     item = api_result["obs"][0]
