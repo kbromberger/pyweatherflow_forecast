@@ -46,6 +46,10 @@ class WeatherFlowForecastInternalServerError(Exception):
     """Servers encounter an unexpected error."""
 
 
+class WeatherFlowForecastStationOfflineError(Exception):
+    """Weather Station either is offline or no recent observations."""
+
+
 class WeatherFlowAPIBase:
     """Baseclass to use as dependency injection pattern for easier automatic testing."""
 
@@ -418,6 +422,11 @@ def _get_sensor_data(api_result: dict, elevation: float, voltage: float, precipi
     """Return WeatherFlowSensorData list from API."""
 
     _LOGGER.debug("ELEVATION: %s", elevation)
+
+    if len(api_result["obs"]) == 0:
+        raise WeatherFlowForecastStationOfflineError(
+            "Weather Station either is offline or no recent observations."
+        )
 
     item = api_result["obs"][0]
 
