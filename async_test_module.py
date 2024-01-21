@@ -47,16 +47,9 @@ async def main() -> None:
         print(err)
 
     try:
-        offline_data: WeatherFlowSensorData = await weatherflow.async_get_offline_sensor_data()
-        print("###########################################")
-        print("ONLINE: ", offline_data.online)
-
-    except Exception as err:
-        print(err)
-
-    try:
         sensor_data: WeatherFlowSensorData = await weatherflow.async_fetch_sensor_data()
         print("###########################################")
+        print("DATA AVAILABLE:", sensor_data.data_available)
         print("TEMPERATURE:", sensor_data.air_temperature)
         print("APPARENT:", sensor_data.feels_like)
         print("WIND GUST:", sensor_data.wind_gust)

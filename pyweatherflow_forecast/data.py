@@ -441,7 +441,7 @@ class WeatherFlowSensorData:
         # pylint: disable=R0913, R0902, R0914
     def __init__(
             self,
-            online: bool,
+            data_available: bool,
             air_density: float,
             air_temperature: float,
             barometric_pressure: float,
@@ -485,7 +485,7 @@ class WeatherFlowSensorData:
             station_name: str,
     ) -> None:
         """Dataset constructor."""
-        self._online = online
+        self._data_available = data_available
         self._air_density = air_density
         self._air_temperature = air_temperature
         self._barometric_pressure = barometric_pressure
@@ -529,9 +529,9 @@ class WeatherFlowSensorData:
         self._station_name = station_name
 
     @property
-    def online(self) -> bool:
-        """Return if station is online."""
-        return self._online
+    def data_available(self) -> bool:
+        """Return if sensor data is available."""
+        return self._data_available
 
     @property
     def absolute_humidity(self) -> float:

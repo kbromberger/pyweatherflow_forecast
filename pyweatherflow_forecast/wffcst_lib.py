@@ -46,8 +46,8 @@ class WeatherFlowForecastInternalServerError(Exception):
     """Servers encounter an unexpected error."""
 
 
-class WeatherFlowForecastStationOfflineError(Exception):
-    """Weather Station either is offline or no recent observations. Remove Sensors to avoid this error."""
+# class WeatherFlowForecastStationOfflineError(Exception):
+#     """Weather Station either is offline or no recent observations. Remove Sensors to avoid this error."""
 
 
 class WeatherFlowAPIBase:
@@ -235,58 +235,109 @@ class WeatherFlow:
         self._station_data = station_data
         return station_data
 
-    async def async_get_offline_sensor_data(self) -> list[WeatherFlowSensorData]:
-        """Return list of sensor data from offline file."""
+    # async def async_get_offline_sensor_data(self) -> list[WeatherFlowSensorData]:
+    #     """Return list of sensor data from offline file."""
 
-        sensor_data = WeatherFlowSensorData(
-            False,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-        )
+    #     sensor_data = WeatherFlowSensorData(
+    #         False,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #         None,
+    #     )
 
-        return sensor_data
+    #     return sensor_data
 
 
-        return _get_sensor_data(json_data, self._elevation, self._voltage, self._station_name)
+    #     return _get_sensor_data(json_data, self._elevation, self._voltage, self._station_name)
+
+def _get_offline_sensor_data() -> list[WeatherFlowSensorData]:
+    """Return list of sensor data from offline file."""
+
+    sensor_data = WeatherFlowSensorData(
+        False,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+
+    return sensor_data
+
 def _calced_day_values(day_number, hourly_data) -> dict[str, Any]:
     """Calculate values for day by using hourly data."""
     _precipitation: float = 0
@@ -476,9 +527,10 @@ def _get_sensor_data(api_result: dict, elevation: float, voltage: float, precipi
 
     if len(api_result["obs"]) == 0:
         _LOGGER.warning("Weather Station either is offline or no recent observations.")
-        raise WeatherFlowForecastStationOfflineError(
-            "Weather Station either is offline or no recent observations. Remove Sensors to avoid this error."
-        )
+        return _get_offline_sensor_data()
+        # raise WeatherFlowForecastStationOfflineError(
+        #     "Weather Station either is offline or no recent observations. Remove Sensors to avoid this error."
+        # )
 
     item = api_result["obs"][0]
 
