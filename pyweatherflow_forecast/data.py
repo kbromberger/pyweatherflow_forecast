@@ -719,15 +719,19 @@ class WeatherFlowSensorData:
     @property
     def power_save_mode(self) -> int:
         """Power Save Mode (Tempest devices)."""
-        if self._voltage is None or self._solar_radiation is None:
+        if self._voltage is None:
             return None
+
+        _solar_radiation = self._solar_radiation
+        if _solar_radiation is None:
+            _solar_radiation = 50
 
         _power_save_mode = None
         if self._voltage >= 2.455:
             _power_save_mode = 0
         elif self._voltage <= 2.355:
             _power_save_mode = 3
-        elif self._solar_radiation > 100:
+        elif _solar_radiation > 100:
             # Assume charging and Voltage is increasing
             if self._voltage >= 2.41:
                 _power_save_mode = 1

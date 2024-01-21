@@ -232,7 +232,7 @@ class WeatherFlow:
         return station_data
 
 
-def _get_offline_sensor_data() -> list[WeatherFlowSensorData]:
+def _get_offline_sensor_data(voltage: float) -> list[WeatherFlowSensorData]:
     """Return list of sensor data from offline file."""
 
     sensor_data = WeatherFlowSensorData(
@@ -264,7 +264,7 @@ def _get_offline_sensor_data() -> list[WeatherFlowSensorData]:
         None,
         None,
         None,
-        None,
+        voltage,
         None,
         None,
         None,
@@ -471,7 +471,7 @@ def _get_sensor_data(api_result: dict, elevation: float, voltage: float, precipi
 
     if len(api_result["obs"]) == 0:
         _LOGGER.warning("Weather Station either is offline or no recent observations.")
-        return _get_offline_sensor_data()
+        return _get_offline_sensor_data(voltage=voltage)
 
     item = api_result["obs"][0]
 
