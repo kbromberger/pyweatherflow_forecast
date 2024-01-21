@@ -1,3 +1,11 @@
+## Release 1.0.9
+
+**Date**: `NOT RELEASED`
+
+### Changes
+
+- Adding voltage to the empty sensor dataset, resulting in valid data for voltage, battery and power save mode even with an empty dayaset from WeatherFlow
+
 ## Release 1.0.8
 
 **Date**: `2024-01-21`
