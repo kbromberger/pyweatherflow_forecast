@@ -424,6 +424,7 @@ def _get_sensor_data(api_result: dict, elevation: float, voltage: float, precipi
     _LOGGER.debug("ELEVATION: %s", elevation)
 
     if len(api_result["obs"]) == 0:
+        _LOGGER.error("Weather Station either is offline or no recent observations.")
         raise WeatherFlowForecastStationOfflineError(
             "Weather Station either is offline or no recent observations."
         )
