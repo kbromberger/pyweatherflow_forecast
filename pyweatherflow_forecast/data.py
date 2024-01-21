@@ -441,6 +441,7 @@ class WeatherFlowSensorData:
         # pylint: disable=R0913, R0902, R0914
     def __init__(
             self,
+            online: bool,
             air_density: float,
             air_temperature: float,
             barometric_pressure: float,
@@ -484,6 +485,7 @@ class WeatherFlowSensorData:
             station_name: str,
     ) -> None:
         """Dataset constructor."""
+        self._online = online
         self._air_density = air_density
         self._air_temperature = air_temperature
         self._barometric_pressure = barometric_pressure
@@ -525,6 +527,11 @@ class WeatherFlowSensorData:
         self._precip_minutes_local_yesterday_final = precip_minutes_local_yesterday_final
         self._elevation = elevation
         self._station_name = station_name
+
+    @property
+    def online(self) -> bool:
+        """Return if station is online."""
+        return self._online
 
     @property
     def absolute_humidity(self) -> float:
