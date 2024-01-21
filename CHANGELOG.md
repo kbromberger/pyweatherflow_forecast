@@ -4,7 +4,7 @@
 
 ### Changes
 
-- Handling if the Station if the station is offline or there is no recent observations.
+- Handling if the station is offline or there is no recent observations.
 
 ## Release 1.0.7
 
