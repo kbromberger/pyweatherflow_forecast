@@ -7,6 +7,7 @@ from pyweatherflow_forecast.wffcst_lib import (
     WeatherFlowForecastBadRequest,
     WeatherFlowForecastUnauthorized,
     WeatherFlowForecastWongStationId,
+    WeatherFlowForecastStationOfflineError,
 )
 from pyweatherflow_forecast.data import (
     WeatherFlowForecastData,
@@ -18,6 +19,6 @@ from pyweatherflow_forecast.data import (
 )
 
 __title__ = "pyweatherflow_forecast"
-__version__ = "1.0.7"
+__version__ = "1.0.8"
 __author__ = "briis"
 __license__ = "MIT"
