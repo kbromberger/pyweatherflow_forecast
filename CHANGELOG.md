@@ -4,7 +4,7 @@
 
 ### Changes
 
-- Added better error handling if the Station ID is not found. The module will not raise the `WeatherFlowForecastWongStationId` error, which then can be handled.
+- Added better error handling if the Station ID is not found. The module will now raise the `WeatherFlowForecastWongStationId` error, which then can be handled.
 
 ## Release 1.0.9
 
