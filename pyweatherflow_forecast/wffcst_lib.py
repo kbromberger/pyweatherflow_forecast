@@ -434,6 +434,9 @@ def _get_forecast_current(api_result: dict) -> list[WeatherFlowForecastData]:
 def _get_station(api_result: dict) -> list[WeatherFlowStationData]:
     """Return WeatherFlowForecast list from API."""
 
+    if len(api_result["stations"]) == 0:
+        raise WeatherFlowForecastWongStationId("Station ID does not exist. Please check you are not using Device ID")
+
     item = api_result["stations"][0]
 
     station_name = item.get("name", None)
