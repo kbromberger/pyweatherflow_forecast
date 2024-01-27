@@ -1,3 +1,12 @@
+## Release 1.0.11
+
+**Date**: `2024-01-27`
+
+### Changes
+
+- Added the option of supplying number of hours we want to show for the Hourly Forecast. Default is set to 48 hours.
+
+
 ## Release 1.0.10
 
 **Date**: `2024-01-22`
