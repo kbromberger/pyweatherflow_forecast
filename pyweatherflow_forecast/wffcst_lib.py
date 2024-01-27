@@ -127,6 +127,7 @@ class WeatherFlow:
         self,
         station_id: int,
         api_token: str,
+        forecast_hours: int = 48,
         session: aiohttp.ClientSession = None,
         elevation = None,
         api: WeatherFlowAPIBase = WeatherFlowAPI(),
@@ -134,6 +135,7 @@ class WeatherFlow:
         """Return data from WeatherFlow API."""
         self._station_id = station_id
         self._api_token = api_token
+        self._forecast_hours = forecast_hours
         self._elevation = elevation
         self._api = api
         self._device_id = None
@@ -152,7 +154,7 @@ class WeatherFlow:
         api_url = f"{WEATHERFLOW_FORECAST_URL}{self._station_id}&token={self._api_token}"
         self._json_data = self._api.api_request(api_url)
 
-        return _get_forecast(self._json_data)
+        return _get_forecast(self._json_data, self._forecast_hours)
 
     def get_station(self) -> list[WeatherFlowStationData]:
         """Return list of station information."""
@@ -220,7 +222,7 @@ class WeatherFlow:
         api_url = f"{WEATHERFLOW_FORECAST_URL}{self._station_id}&token={self._api_token}"
         self._json_data = await self._api.async_api_request(api_url)
 
-        return _get_forecast(self._json_data)
+        return _get_forecast(self._json_data, self._forecast_hours)
 
     async def async_get_station(self) -> list[WeatherFlowStationData]:
         """Return list with Station information."""
@@ -309,7 +311,7 @@ def _calced_day_values(day_number, hourly_data) -> dict[str, Any]:
 
 
 # pylint: disable=R0914, R0912, W0212, R0915
-def _get_forecast(api_result: dict) -> list[WeatherFlowForecastData]:
+def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowForecastData]:
     """Return WeatherFlowForecast list from API."""
 
     # Get Current Conditions
@@ -351,7 +353,11 @@ def _get_forecast(api_result: dict) -> list[WeatherFlowForecastData]:
     current_conditions.forecast_daily = forecasts_daily
 
     # Add Hourly Forecast
+    _hour_counter = 1
     for item in api_result["forecast"]["hourly"]:
+        if _hour_counter > forecast_hours:
+            break
+
         timestamp = item["time"]
         valid_time = datetime.datetime.fromtimestamp(timestamp)
         condition = item.get("conditions", None)
@@ -384,6 +390,7 @@ def _get_forecast(api_result: dict) -> list[WeatherFlowForecastData]:
             uv_index,
         )
         forecasts_hourly.append(forecast)
+        _hour_counter += 1
 
     current_conditions.forecast_hourly = forecasts_hourly
 
