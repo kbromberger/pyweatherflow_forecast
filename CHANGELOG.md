@@ -1,3 +1,12 @@
+## Release 1.0.12
+
+**Date**: `NOT RELEASED`
+
+### Changes
+
+- Bumped Python to 3.12 in Devcontainer
+
+
 ## Release 1.0.11
 
 **Date**: `2024-01-27`
