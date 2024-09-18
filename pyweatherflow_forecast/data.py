@@ -833,6 +833,11 @@ class WeatherFlowSensorData:
     @property
     def precip_type(self) -> str:
         """Return precipitation type."""
+        return self._precipitation_type
+
+    @property
+    def precip_type_text(self) -> str:
+        """Return precipitation type."""
 
         _default_value = "no_rain"
 
