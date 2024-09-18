@@ -836,6 +836,26 @@ class WeatherFlowSensorData:
         return self._precipitation_type
 
     @property
+    def precip_type_text(self) -> str:
+        """Return precipitation type."""
+
+        _default_value = "no_rain"
+
+        if self._precipitation_type is None:
+            self._precipitation_type = 0
+
+        mapping_text = {
+            "0": _default_value,
+            "1": "rain",
+            "2": "heavy_rain",
+        }
+
+        for key, value in mapping_text.items():
+            if self._precipitation_type == float(key):
+                return value
+        return _default_value
+
+    @property
     def pressure_trend(self) -> str:
         """Pressure trend text."""
         return self._pressure_trend

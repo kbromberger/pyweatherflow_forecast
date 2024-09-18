@@ -1,10 +1,11 @@
-## Release 1.0.12
+## Release 1.1.0
 
-**Date**: `NOT RELEASED`
+**Date**: `2024-09-18`
 
 ### Changes
 
 - Bumped Python to 3.12 in Devcontainer
+- Added `precip_type_text` sensor, which describes what type of precipitation is measured. (No Rain, Rain or Heavy Rain/Hail)
 
 
 ## Release 1.0.11
