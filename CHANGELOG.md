@@ -1,3 +1,12 @@
+## Release 1.1.1
+
+**Date**: `2024-01-07`
+
+### Changes
+
+- Bumped Python to 3.13 in Devcontainer
+- Added `precip_type` and `precip_icon` to Daily and Hourly Forecast.
+
 ## Release 1.1.0
 
 **Date**: `2024-09-18`
