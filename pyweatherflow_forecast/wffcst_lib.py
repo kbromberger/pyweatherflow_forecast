@@ -329,6 +329,8 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
         temperature = item.get("air_temp_high", None)
         temp_low = item.get("air_temp_low", None)
         precipitation_probability = item.get("precip_probability", None)
+        precipitation_icon = item.get("precip_icon", None)
+        precipitation_type = item.get("precip_type", None)
         _calc_values = _calced_day_values(item["day_num"], api_result["forecast"]["hourly"])
         precipitation = _calc_values["precipitation"]
         wind_bearing = _calc_values["wind_bearing"]
@@ -344,6 +346,8 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
             icon,
             precipitation_probability,
             precipitation,
+            precipitation_icon,
+            precipitation_type,
             wind_bearing,
             wind_speed,
             wind_gust,
@@ -366,6 +370,8 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
         apparent_temperature = item.get("feels_like", None)
         precipitation = item.get("precip", None)
         precipitation_probability = item.get("precip_probability", None)
+        precipitation_icon = item.get("precip_icon", None)
+        precipitation_type = item.get("precip_type", None)
         humidity = item.get("relative_humidity", None)
         pressure = item.get("sea_level_pressure", None)
         uv_index = item.get("uv", None)
@@ -383,6 +389,8 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
             humidity,
             precipitation,
             precipitation_probability,
+            precipitation_icon,
+            precipitation_type,
             pressure,
             wind_bearing,
             wind_gust_speed,
