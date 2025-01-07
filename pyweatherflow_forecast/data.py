@@ -152,6 +152,8 @@ class WeatherFlowForecastDaily:
         icon: str,
         precipitation_probability: int,
         precipitation: float,
+        precip_icon: str,
+        precip_type: str,
         wind_bearing: int,
         wind_speed: float,
         wind_gust: float,
@@ -165,6 +167,8 @@ class WeatherFlowForecastDaily:
         self._icon = icon
         self._precipitation_probability = precipitation_probability
         self._precipitation = precipitation
+        self._precip_icon = precip_icon
+        self._precip_type = precip_type
         self._wind_bearing = wind_bearing
         self._wind_speed = wind_speed
         self._wind_gust = wind_gust
@@ -210,6 +214,16 @@ class WeatherFlowForecastDaily:
         return self._precipitation
 
     @property
+    def precip_icon(self) -> str:
+        """Precipiation Icon."""
+        return self._precip_icon
+
+    @property
+    def precip_type(self) -> str:
+        """Precipiation Type."""
+        return self._precip_type
+
+    @property
     def wind_bearing(self) -> float:
         """Wind bearing (degrees)."""
         return self._wind_bearing
@@ -239,6 +253,8 @@ class WeatherFlowForecastHourly:
         humidity: int,
         precipitation: float,
         precipitation_probability: int,
+        precip_icon: str,
+        precip_type: str,
         pressure: float,
         wind_bearing: float,
         wind_gust_speed: int,
@@ -255,6 +271,8 @@ class WeatherFlowForecastHourly:
         self._humidity = humidity
         self._precipitation = precipitation
         self._precipitation_probability = precipitation_probability
+        self._precip_icon = precip_icon
+        self._precip_type = precip_type
         self._pressure = pressure
         self._wind_bearing = wind_bearing
         self._wind_gust_speed = wind_gust_speed
@@ -295,6 +313,16 @@ class WeatherFlowForecastHourly:
     def precipitation_probability (self) -> int:
         """Posobility of Precipiation (%)."""
         return self._precipitation_probability
+
+    @property
+    def precip_icon(self) -> str:
+        """Precipiation Icon."""
+        return self._precip_icon
+
+    @property
+    def precip_type(self) -> str:
+        """Precipiation Type."""
+        return self._precip_type
 
     @property
     def pressure(self) -> float:
