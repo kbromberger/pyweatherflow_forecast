@@ -84,11 +84,11 @@ async def main() -> None:
         print("TEMPERATURE: ", data.temperature)
         print("***** DAILY DATA *****")
         for item in data.forecast_daily:
-            print(item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability, item.precipitation, item.wind_bearing, item.wind_speed, item.wind_gust)
+            print(item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability, item.precip_icon, item.precip_type, item.precipitation, item.wind_bearing, item.wind_speed, item.wind_gust)
         print("***** HOURLY DATA *****")
         cnt = 1
         for item in data.forecast_hourly:
-            print("**", cnt, "** ", item.datetime, item.temperature, item.apparent_temperature, item.icon, item.condition, item.precipitation, item.precipitation_probability)
+            print("**", cnt, "** ", item.datetime, item.temperature, item.apparent_temperature, item.icon, item.condition, item.precipitation, item.precipitation_probability, item.precip_icon, item.precip_type)
             cnt += 1
     except Exception as err:
         print(err)
