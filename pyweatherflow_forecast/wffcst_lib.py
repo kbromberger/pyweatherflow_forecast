@@ -160,7 +160,7 @@ class WeatherFlow:
         """Return list of station information."""
         station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?token={self._api_token}"
         json_data = self._api.api_request(station_url)
-
+        _LOGGER.debug("STATION DATA: %s", json_data)
         return _get_station(json_data)
 
     def fetch_sensor_data(self, voltage: float = None) -> list[WeatherFlowSensorData]:
@@ -173,6 +173,7 @@ class WeatherFlow:
             json_station_data = self._api.api_request(station_url)
             station_data: WeatherFlowStationData = _get_station(json_station_data)
             self._device_id = station_data.device_id
+            self._station_name = station_data.station_name
             self._tempest_device = False if self._device_id is None else True
 
         if self._device_id is not None:
