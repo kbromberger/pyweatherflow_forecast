@@ -160,7 +160,6 @@ class WeatherFlow:
         """Return list of station information."""
         station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?token={self._api_token}"
         json_data = self._api.api_request(station_url)
-        _LOGGER.debug("STATION DATA: %s", json_data)
         return _get_station(json_data)
 
     def fetch_sensor_data(self, voltage: float = None) -> list[WeatherFlowSensorData]:
