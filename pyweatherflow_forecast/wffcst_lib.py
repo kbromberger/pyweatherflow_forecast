@@ -410,8 +410,8 @@ def _get_forecast_current(api_result: dict) -> list[WeatherFlowForecastData]:
     """Return WeatherFlowForecast list from API."""
 
     item = api_result["current_conditions"]
-    timestamp = item["time"]
-    valid_time = datetime.datetime.fromtimestamp(timestamp)
+    timestamp = item.get("time", None)
+    valid_time = datetime.datetime.fromtimestamp(timestamp) if timestamp is not None else datetime.datetime.now()
     condition = item.get("conditions", None)
     icon = ICON_LIST.get(item["icon"], "exceptional")
     temperature = item.get("air_temperature", None)

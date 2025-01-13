@@ -33,7 +33,7 @@ async def main() -> None:
     elevation = 60
 
     session = aiohttp.ClientSession()
-    weatherflow = WeatherFlow(station_id=station_id, api_token=api_token, elevation=elevation, session=session, forecast_hours=24)
+    weatherflow = WeatherFlow(station_id=station_id, api_token=api_token, elevation=elevation, session=session, forecast_hours=12)
 
     try:
         station_data: WeatherFlowStationData = await weatherflow.async_get_station()
