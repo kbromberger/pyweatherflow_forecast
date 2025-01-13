@@ -1,3 +1,11 @@
+## Release 1.1.2
+
+**Date**: `2024-01-13`
+
+### Changes
+
+- Fixing "Failed setup, will retry" with "Updated failed: 'time'". Closing [WeatherFlow Forecast #99](https://github.com/briis/weatherflow_forecast/issues/99)
+
 ## Release 1.1.1
 
 **Date**: `2024-01-07`
