@@ -151,14 +151,14 @@ class WeatherFlow:
 
     def get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
-        api_url = f"{WEATHERFLOW_FORECAST_URL}{self._station_id}&token={self._api_token}"
+        api_url = f"{WEATHERFLOW_FORECAST_URL}{self._station_id}&api_key={self._api_token}"
         self._json_data = self._api.api_request(api_url)
 
         return _get_forecast(self._json_data, self._forecast_hours)
 
     def get_station(self) -> list[WeatherFlowStationData]:
         """Return list of station information."""
-        station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?token={self._api_token}"
+        station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?api_key={self._api_token}"
         json_data = self._api.api_request(station_url)
         return _get_station(json_data)
 
@@ -168,7 +168,7 @@ class WeatherFlow:
         sensor_data = None
 
         if self._device_id is None and not self._tempest_device:
-            station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?token={self._api_token}"
+            station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?api_key={self._api_token}"
             json_station_data = self._api.api_request(station_url)
             station_data: WeatherFlowStationData = _get_station(json_station_data)
             self._device_id = station_data.device_id
@@ -177,14 +177,14 @@ class WeatherFlow:
 
         if self._device_id is not None:
             _device_id = station_data.device_id
-            device_url = f"{WEATHERFLOW_DEVICE_URL}{_device_id}?token={self._api_token}"
+            device_url = f"{WEATHERFLOW_DEVICE_URL}{_device_id}?api_key={self._api_token}"
             json_device_data = self._api.api_request(device_url)
             device_data: WeatherFlowDeviceData = _get_device_data(json_device_data, _device_id)
 
         if device_data is not None or not self._tempest_device:
             _precipitation_type = device_data.precipitation_type if self._tempest_device else None
             _voltage = device_data.voltage if self._tempest_device else None
-            api_url = f"{WEATHERFLOW_SENSOR_URL}{self._station_id}?token={self._api_token}"
+            api_url = f"{WEATHERFLOW_SENSOR_URL}{self._station_id}?api_key={self._api_token}"
             json_data = self._api.api_request(api_url)
             sensor_data = _get_sensor_data(json_data, self._elevation, _voltage, _precipitation_type, self._station_name)
 
@@ -196,7 +196,7 @@ class WeatherFlow:
         sensor_data = None
 
         if self._device_id is None and not self._tempest_device:
-            station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?token={self._api_token}"
+            station_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?api_key={self._api_token}"
             json_station_data = await self._api.async_api_request(station_url)
             station_data: WeatherFlowStationData = _get_station(json_station_data)
             self._device_id = station_data.device_id
@@ -204,14 +204,14 @@ class WeatherFlow:
             self._tempest_device = False if self._device_id is None else True
 
         if self._device_id is not None:
-            device_url = f"{WEATHERFLOW_DEVICE_URL}{self._device_id}?token={self._api_token}"
+            device_url = f"{WEATHERFLOW_DEVICE_URL}{self._device_id}?api_key={self._api_token}"
             json_device_data = await self._api.async_api_request(device_url)
             device_data: WeatherFlowDeviceData = _get_device_data(json_device_data, self._device_id)
 
         if device_data is not None or not self._tempest_device:
             _precipitation_type = device_data.precipitation_type if self._tempest_device else None
             _voltage = device_data.voltage if self._tempest_device else None
-            api_url = f"{WEATHERFLOW_SENSOR_URL}{self._station_id}?token={self._api_token}"
+            api_url = f"{WEATHERFLOW_SENSOR_URL}{self._station_id}?api_key={self._api_token}"
             json_data = await self._api.async_api_request(api_url)
             sensor_data = _get_sensor_data(json_data, self._elevation, _voltage, _precipitation_type, self._station_name)
 
@@ -219,14 +219,14 @@ class WeatherFlow:
 
     async def async_get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
-        api_url = f"{WEATHERFLOW_FORECAST_URL}{self._station_id}&token={self._api_token}"
+        api_url = f"{WEATHERFLOW_FORECAST_URL}{self._station_id}&api_key={self._api_token}"
         self._json_data = await self._api.async_api_request(api_url)
 
         return _get_forecast(self._json_data, self._forecast_hours)
 
     async def async_get_station(self) -> list[WeatherFlowStationData]:
         """Return list with Station information."""
-        api_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?token={self._api_token}"
+        api_url = f"{WEATHERFLOW_STATION_URL}{self._station_id}?api_key={self._api_token}"
 
         json_data = await self._api.async_api_request(api_url)
         station_data = _get_station(json_data)
