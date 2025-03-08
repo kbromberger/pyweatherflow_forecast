@@ -12,6 +12,7 @@ from pyweatherflow_forecast import (
     WeatherFlow,
     WeatherFlowSensorData,
     WeatherFlowStationData,
+    WeatherFlowForecastData
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -44,6 +45,11 @@ print("BEAUFORT: ", sensor_data.beaufort)
 print("FREEZING ALT: ", sensor_data.freezing_altitude)
 print("VOLTAGE: ", sensor_data.voltage)
 print("BATTERY: ", sensor_data.battery)
+
+
+forecast_data: WeatherFlowForecastData = weatherflow.get_forecast()
+print("CONDITION: ", forecast_data.condition)
+print("ICON: ", forecast_data.icon)
 
 # data: WeatherFlowForecastData = weatherflow.get_forecast()
 # print("TEMPERATURE: ", data.temperature)
