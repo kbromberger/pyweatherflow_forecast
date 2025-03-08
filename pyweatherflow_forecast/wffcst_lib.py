@@ -325,7 +325,7 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
         timestamp = item["day_start_local"]
         valid_time = datetime.datetime.fromtimestamp(timestamp)
         condition = item.get("conditions", "Data Error")
-        icon = ICON_LIST.get(item["icon"], "exceptional")
+        icon = ICON_LIST.get(item["icon"], "unknown")
         temperature = item.get("air_temp_high", None)
         temp_low = item.get("air_temp_low", None)
         precipitation_probability = item.get("precip_probability", None)
@@ -365,7 +365,7 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
         timestamp = item["time"]
         valid_time = datetime.datetime.fromtimestamp(timestamp)
         condition = item.get("conditions", None)
-        icon = ICON_LIST.get(item["icon"], "exceptional")
+        icon = ICON_LIST.get(item["icon"], "unknown")
         temperature = item.get("air_temperature", None)
         apparent_temperature = item.get("feels_like", None)
         precipitation = item.get("precip", None)
@@ -413,7 +413,7 @@ def _get_forecast_current(api_result: dict) -> list[WeatherFlowForecastData]:
     timestamp = item.get("time", None)
     valid_time = datetime.datetime.fromtimestamp(timestamp) if timestamp is not None else datetime.datetime.now()
     condition = item.get("conditions", None)
-    icon = ICON_LIST.get(item["icon"], "exceptional")
+    icon = ICON_LIST.get(item["icon"], "unknown")
     temperature = item.get("air_temperature", None)
     dew_point = item.get("dew_point", None)
     apparent_temperature = item.get("feels_like", None)

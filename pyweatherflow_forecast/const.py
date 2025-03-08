@@ -13,6 +13,7 @@ WEATHERFLOW_SENSOR_URL = f"{WEATHERFLOW_BASE_URL}/observations/station/"
 WEATHERFLOW_STATION_URL = f"{WEATHERFLOW_BASE_URL}/stations/"
 
 ICON_LIST = {
+    "cc-clear-day": "sunny",
     "clear-day": "sunny",
     "clear-night": "clear-night",
     "cloudy": "cloudy",
