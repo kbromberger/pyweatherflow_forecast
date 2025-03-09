@@ -327,7 +327,10 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
         valid_time_utc = datetime.datetime.fromtimestamp(timestamp, tz=pytz.utc)
         condition = item.get("conditions", "Data Error")
         icon_string = item["icon"]
-        icon = ICON_LIST.get(icon_string.removeprefix("cc-"), "unknown")
+        if icon_string.startswith("cc-"):
+            icon = ICON_LIST.get(icon_string.removeprefix("cc-"), "unknown")
+        else:
+            icon = ICON_LIST.get(icon_string, "unknown")
         temperature = item.get("air_temp_high", None)
         temp_low = item.get("air_temp_low", None)
         precipitation_probability = item.get("precip_probability", None)
