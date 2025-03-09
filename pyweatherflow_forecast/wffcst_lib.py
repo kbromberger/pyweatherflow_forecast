@@ -328,7 +328,6 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
         condition = item.get("conditions", "Data Error")
         icon_string = item["icon"]
         icon = ICON_LIST.get(icon_string, "unknown")
-        print(f"ICON: {icon_string} - {icon}")
         temperature = item.get("air_temp_high", None)
         temp_low = item.get("air_temp_low", None)
         precipitation_probability = item.get("precip_probability", None)
