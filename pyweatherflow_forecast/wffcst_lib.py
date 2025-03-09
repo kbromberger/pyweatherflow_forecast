@@ -320,6 +320,8 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
     forecasts_daily = []
     forecasts_hourly = []
 
+    _LOGGER.info("API RESULT: %s", api_result)
+
 
     # Add daily forecast details
     for item in api_result["forecast"]["daily"]:
