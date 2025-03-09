@@ -6,7 +6,7 @@ import abc
 import datetime
 import json
 import logging
-import pytz
+
 
 from typing import Any
 from urllib.request import urlopen
@@ -324,7 +324,7 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
     # Add daily forecast details
     for item in api_result["forecast"]["daily"]:
         timestamp = item["day_start_local"]
-        valid_time_utc = datetime.datetime.fromtimestamp(timestamp, tz=pytz.utc)
+        valid_time_utc = datetime.datetime.fromtimestamp(timestamp)
         condition = item.get("conditions", "Data Error")
         icon_string = item["icon"]
         if icon_string.startswith("cc-"):
