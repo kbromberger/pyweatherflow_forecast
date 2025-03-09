@@ -6,6 +6,8 @@ import abc
 import datetime
 import json
 import logging
+import pytz
+import tzlocal
 
 from typing import Any
 from urllib.request import urlopen
@@ -127,7 +129,7 @@ class WeatherFlow:
         self,
         station_id: int,
         api_token: str,
-        forecast_hours: int = 48,
+        forecast_hours: int = 72,
         session: aiohttp.ClientSession = None,
         elevation = None,
         api: WeatherFlowAPIBase = WeatherFlowAPI(),
@@ -320,12 +322,15 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
     forecasts_daily = []
     forecasts_hourly = []
 
+    local_timezone = tzlocal.get_localzone()
+
     # Add daily forecast details
     for item in api_result["forecast"]["daily"]:
         timestamp = item["day_start_local"]
-        valid_time = datetime.datetime.fromtimestamp(timestamp)
+        valid_time_utc = datetime.datetime.fromtimestamp(timestamp, tz=pytz.utc)
         condition = item.get("conditions", "Data Error")
-        icon = ICON_LIST.get(item["icon"], "unknown")
+        icon_string = item["icon"]
+        icon = ICON_LIST.get(icon_string.removeprefix("cc-"), "unknown")
         temperature = item.get("air_temp_high", None)
         temp_low = item.get("air_temp_low", None)
         precipitation_probability = item.get("precip_probability", None)
@@ -338,7 +343,7 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
         wind_gust = _calc_values["wind_gust"]
 
         forecast = WeatherFlowForecastDaily(
-            valid_time,
+            valid_time_utc,
             timestamp,
             temperature,
             temp_low,
