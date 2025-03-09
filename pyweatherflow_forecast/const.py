@@ -49,6 +49,6 @@ ICON_LIST = {
     "cc-snow": "snowy",
     "thunderstorm": "lightning",
     "cc-thunderstorm": "lightning",
-    "cc-windy": "windy"    
+    "cc-windy": "windy",    
     "windy": "windy"
 }
