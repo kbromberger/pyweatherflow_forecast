@@ -324,7 +324,7 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
     # Add daily forecast details
     for item in api_result["forecast"]["daily"]:
         timestamp = item["day_start_local"]
-        valid_time_utc = datetime.datetime.fromtimestamp(timestamp)
+        valid_time_utc = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
         condition = item.get("conditions", "Data Error")
         icon_string = item["icon"]
         icon = ICON_LIST.get(icon_string, "unknown")
