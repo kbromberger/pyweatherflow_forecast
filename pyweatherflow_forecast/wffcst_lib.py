@@ -7,7 +7,6 @@ import datetime
 import json
 import logging
 import pytz
-import tzlocal
 
 from typing import Any
 from urllib.request import urlopen
@@ -321,8 +320,6 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
 
     forecasts_daily = []
     forecasts_hourly = []
-
-    local_timezone = tzlocal.get_localzone()
 
     # Add daily forecast details
     for item in api_result["forecast"]["daily"]:
