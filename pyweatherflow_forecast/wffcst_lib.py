@@ -7,7 +7,7 @@ import datetime
 import json
 import logging
 
-
+from zoneinfo import ZoneInfo
 from typing import Any
 from urllib.request import urlopen
 
@@ -320,17 +320,15 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
 
     forecasts_daily = []
     forecasts_hourly = []
+    utc_timezone = ZoneInfo("UTC")
 
     # Add daily forecast details
     for item in api_result["forecast"]["daily"]:
         timestamp = item["day_start_local"]
-        valid_time_utc = datetime.datetime.fromtimestamp(timestamp)
+        valid_time_utc = datetime.datetime.fromtimestamp(timestamp, tz=utc_timezone)
         condition = item.get("conditions", "Data Error")
         icon_string = item["icon"]
-        if icon_string.startswith("cc-"):
-            icon = ICON_LIST.get(icon_string.removeprefix("cc-"), "unknown")
-        else:
-            icon = ICON_LIST.get(icon_string, "unknown")
+        icon = ICON_LIST.get(icon_string.removeprefix("cc-"), "unknown")
         temperature = item.get("air_temp_high", None)
         temp_low = item.get("air_temp_low", None)
         precipitation_probability = item.get("precip_probability", None)
