@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import abc
-import datetime
 import json
 import logging
+import zoneinfo
+import datetime
+import tzlocal
 
 from typing import Any
 from urllib.request import urlopen
@@ -310,6 +312,42 @@ def _calced_day_values(day_number, hourly_data) -> dict[str, Any]:
     }
 
 
+def align_to_source_date_in_local_target(timestamp, source_timezone):
+    """
+    Converts a timestamp and forces the output date to match the source date in the local timezone.
+    Uses tzlocal for reliable timezone detection (using zoneinfo).
+    """
+    try:
+        source_tz = zoneinfo.ZoneInfo(source_timezone)
+        local_tz = tzlocal.get_localzone()  # Get the IANA timezone
+
+        source_dt = datetime.datetime.fromtimestamp(timestamp, tz=source_tz)
+        target_dt_temp = source_dt.astimezone(local_tz)
+
+        # Get the date from the source timezone
+        source_date = source_dt.date()
+
+        # Force the date in the local timezone to match the source date
+        target_dt = datetime.datetime(
+            source_date.year,
+            source_date.month,
+            source_date.day,
+            target_dt_temp.hour,
+            target_dt_temp.minute,
+            target_dt_temp.second,
+            tzinfo=local_tz,
+        )
+
+        print(f"Original Time ({source_timezone}): {source_dt.strftime('%Y-%m-%d %H:%M:%S %z')}")
+        print(f"Aligned Time (Local Timezone: {local_tz}): {target_dt.strftime('%Y-%m-%d %H:%M:%S %z')}")
+        print(f"Aligned Timestamp (Local Timezone): {int(target_dt.timestamp())}")
+
+    except zoneinfo.ZoneInfoNotFoundError as e:
+        print(f"Error: Timezone not found - {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    return int(target_dt.timestamp())
+
 # pylint: disable=R0914, R0912, W0212, R0915
 def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowForecastData]:
     """Return WeatherFlowForecast list from API."""
@@ -322,10 +360,13 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
 
     _LOGGER.info("API RESULT: %s", api_result)
 
+    source_tz = zoneinfo.ZoneInfo(api_result["timezone"])
+    print("SOURCE TZ: ", source_tz)
 
     # Add daily forecast details
     for item in api_result["forecast"]["daily"]:
         timestamp = item["day_start_local"]
+        valid_time = align_to_source_date_in_local_target(timestamp, api_result["timezone"])
         valid_time_utc = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
         condition = item.get("conditions", "Data Error")
         icon_string = item["icon"]
@@ -342,8 +383,8 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
         wind_gust = _calc_values["wind_gust"]
 
         forecast = WeatherFlowForecastDaily(
-            valid_time_utc,
-            timestamp,
+            valid_time,
+            valid_time,
             temperature,
             temp_low,
             condition,
