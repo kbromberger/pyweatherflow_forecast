@@ -312,10 +312,12 @@ def _calced_day_values(day_number, hourly_data) -> dict[str, Any]:
     }
 
 
-def align_to_source_date_in_local_target(timestamp, source_timezone):
+def _align_source_to_local_time(timestamp, source_timezone):
     """
     Converts a timestamp and forces the output date to match the source date in the local timezone.
     Uses tzlocal for reliable timezone detection (using zoneinfo).
+
+    This prevents forecast data from being displayed with a date earlier than the current date.
     """
     try:
         source_tz = zoneinfo.ZoneInfo(source_timezone)
@@ -338,15 +340,11 @@ def align_to_source_date_in_local_target(timestamp, source_timezone):
             tzinfo=local_tz,
         )
 
-        print(f"Original Time ({source_timezone}): {source_dt.strftime('%Y-%m-%d %H:%M:%S %z')}")
-        print(f"Aligned Time (Local Timezone: {local_tz}): {target_dt.strftime('%Y-%m-%d %H:%M:%S %z')}")
-        print(f"Aligned Timestamp (Local Timezone): {int(target_dt.timestamp())}")
-
     except zoneinfo.ZoneInfoNotFoundError as e:
         print(f"Error: Timezone not found - {e}")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-    return int(target_dt.timestamp())
+    return target_dt, int(target_dt.timestamp())
 
 # pylint: disable=R0914, R0912, W0212, R0915
 def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowForecastData]:
@@ -366,8 +364,7 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
     # Add daily forecast details
     for item in api_result["forecast"]["daily"]:
         timestamp = item["day_start_local"]
-        valid_time = align_to_source_date_in_local_target(timestamp, api_result["timezone"])
-        valid_time_utc = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+        adj_dt, adj_ts = _align_source_to_local_time(timestamp, api_result["timezone"])
         condition = item.get("conditions", "Data Error")
         icon_string = item["icon"]
         icon = ICON_LIST.get(icon_string, "unknown")
@@ -383,8 +380,8 @@ def _get_forecast(api_result: dict, forecast_hours: int) -> list[WeatherFlowFore
         wind_gust = _calc_values["wind_gust"]
 
         forecast = WeatherFlowForecastDaily(
-            valid_time,
-            valid_time,
+            adj_dt,
+            adj_ts,
             temperature,
             temp_low,
             condition,
