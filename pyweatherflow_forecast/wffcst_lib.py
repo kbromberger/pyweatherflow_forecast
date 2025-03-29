@@ -10,12 +10,13 @@ import datetime
 import tzlocal
 
 from typing import Any
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 
 import aiohttp
 
 from .const import (
     ICON_LIST,
+    DEFAULT_USER_AGENT,
     WEATHERFLOW_DEVICE_URL,
     WEATHERFLOW_FORECAST_URL,
     WEATHERFLOW_SENSOR_URL,
@@ -71,12 +72,30 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
     def __init__(self) -> None:
         """Init the API with or without session."""
         self.session = None
+        self._user_agent = None
+
+    @property
+    def user_agent(self) -> str | None:
+        """Return the current User-Agent string."""
+        return self._user_agent
+
+    @user_agent.setter
+    def user_agent(self, value: str) -> None:
+        """Set the User-Agent string to be used in requests."""
+        self._user_agent = value
 
     def api_request(self, url: str) -> dict[str, Any]:
         """Return data from API."""
         _LOGGER.debug("URL: %s", url)
 
-        response = urlopen(url)
+        headers = {}
+        if self._user_agent:
+            headers['User-Agent'] = self._user_agent
+        else:
+            headers['User-Agent'] = DEFAULT_USER_AGENT
+
+        request = Request(url, headers=headers)
+        response = urlopen(request)
         data = response.read().decode("utf-8")
         json_data = json.loads(data)
 
@@ -92,7 +111,13 @@ class WeatherFlowAPI(WeatherFlowAPIBase):
             self.session = aiohttp.ClientSession()
             is_new_session = True
 
-        async with self.session.get(url) as response:
+        headers = {}
+        if self._user_agent:
+            headers['User-Agent'] = self._user_agent
+        else:
+            headers['User-Agent'] = DEFAULT_USER_AGENT
+
+        async with self.session.get(url, headers=headers) as response:
             if response.status != 200:
                 if is_new_session:
                     await self.session.close()
@@ -150,6 +175,18 @@ class WeatherFlow:
         if session:
             self._api.session = session
 
+    @property
+    def user_agent(self) -> str | None:
+        """Return the User-Agent string used by the API client."""
+        if isinstance(self._api, WeatherFlowAPI):
+            return self._api.user_agent
+        return None
+
+    @user_agent.setter
+    def user_agent(self, value: str) -> None:
+        """Set the User-Agent string for the API client."""
+        if isinstance(self._api, WeatherFlowAPI):
+            self._api.user_agent = value
 
     def get_forecast(self) -> list[WeatherFlowForecastData]:
         """Return list of forecasts. The first in list are the current one."""
@@ -268,7 +305,9 @@ def _get_offline_sensor_data(voltage: float) -> list[WeatherFlowSensorData]:
         None,
         None,
         None,
+        None,
         voltage,
+        None,
         None,
         None,
         None,
@@ -300,9 +339,9 @@ def _calced_day_values(day_number, hourly_data) -> dict[str, Any]:
             _wind_speed.append(item.get("wind_avg", 0))
             _wind_gust.append(item.get("wind_gust", 0))
 
-    _sum_wind_speed = sum(_wind_speed) / len(_wind_speed)
-    _sum_wind_bearing = sum(_wind_bearing) / len(_wind_bearing)
-    _max_wind_gust = max(_wind_gust)
+    _sum_wind_speed = sum(_wind_speed) / len(_wind_speed) if _wind_speed else 0
+    _sum_wind_bearing = sum(_wind_bearing) / len(_wind_bearing) if _wind_bearing else 0
+    _max_wind_gust = max(_wind_gust) if _wind_gust else 0
 
     return {
         "precipitation": _precipitation,
@@ -634,4 +673,3 @@ def _get_device_data(api_result: dict, device_id: int) -> float:
     )
 
     return device_data
-

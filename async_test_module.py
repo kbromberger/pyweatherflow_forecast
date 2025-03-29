@@ -32,8 +32,18 @@ async def main() -> None:
     api_token = os.getenv("API_TOKEN")
     elevation = 60
 
-    session = aiohttp.ClientSession()
-    weatherflow = WeatherFlow(station_id=station_id, api_token=api_token, elevation=elevation, session=session, forecast_hours=12)
+    # Define your User-Agent string
+    custom_user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.0"
+    session_headers = {'User-Agent': custom_user_agent}
+
+    session = aiohttp.ClientSession()  # Pass headers to session
+    weatherflow = WeatherFlow(
+        station_id=station_id,
+        api_token=api_token,
+        elevation=elevation,
+        session=session,
+        forecast_hours=12,
+    )
 
     try:
         station_data: WeatherFlowStationData = await weatherflow.async_get_station()
@@ -78,21 +88,45 @@ async def main() -> None:
     except Exception as err:
         print(err)
 
-
     try:
         data: WeatherFlowForecastData = await weatherflow.async_get_forecast()
         print("TEMPERATURE: ", data.temperature)
         print("***** DAILY DATA *****")
         for item in data.forecast_daily:
-            print(item.datetime, item.temperature, item.temp_low, item.icon, item.condition, item.precipitation_probability, item.precip_icon, item.precip_type, item.precipitation, item.wind_bearing, item.wind_speed, item.wind_gust)
+            print(
+                item.datetime,
+                item.temperature,
+                item.temp_low,
+                item.icon,
+                item.condition,
+                item.precipitation_probability,
+                item.precip_icon,
+                item.precip_type,
+                item.precipitation,
+                item.wind_bearing,
+                item.wind_speed,
+                item.wind_gust,
+            )
         print("***** HOURLY DATA *****")
         cnt = 1
         for item in data.forecast_hourly:
-            print("**", cnt, "** ", item.datetime, item.temperature, item.apparent_temperature, item.icon, item.condition, item.precipitation, item.precipitation_probability, item.precip_icon, item.precip_type)
+            print(
+                "**",
+                cnt,
+                "** ",
+                item.datetime,
+                item.temperature,
+                item.apparent_temperature,
+                item.icon,
+                item.condition,
+                item.precipitation,
+                item.precipitation_probability,
+                item.precip_icon,
+                item.precip_type,
+            )
             cnt += 1
     except Exception as err:
         print(err)
-
 
     if session is not None:
         await session.close()
@@ -100,5 +134,6 @@ async def main() -> None:
     end = time.time()
 
     _LOGGER.info("Execution time: %s seconds", end - start)
+
 
 asyncio.run(main())
